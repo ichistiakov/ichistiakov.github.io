@@ -8,10 +8,9 @@
 {{- $sprite := mod (hash.FNV32a $key) 12 }}
 {{- $jitter := add 8 (mod (hash.FNV32a $p.Title) 48) }}
 {{- if .flush }}{{ $jitter = 0 }}{{ end }}
-<a class="book book-s{{ $sprite }}" href="{{ $p.RelPermalink }}" style="--jit: {{ $jitter }}px">
+<a class="book book-s{{ $sprite }}" href="{{ $p.RelPermalink }}" style="--jit: {{ $jitter }}px" aria-label="{{ $p.Title }}">
   <span class="book-spine">
     {{- with $p.Params.part }}<span class="book-part">{{ . }}</span>{{ end }}
-    <span class="book-title">{{ $p.Title }}</span>
   </span>
   <span class="book-card">
     <strong class="card-title">{{ $p.Title }}</strong>

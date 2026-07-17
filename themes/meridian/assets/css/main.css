@@ -699,23 +699,23 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
 }
 .shelf-scene .bookcase { flex: 1; margin: 0; }
 
+/* торшер стоит на полу рядом со шкафом, скроллится вместе со страницей */
 .floor-lamp {
   position: relative;
-  flex: 0 0 98px;
-  height: 280px;
+  flex: 0 0 169px;
+  height: 448px;
   background: url(../img/books/lamp-off.png) no-repeat center bottom;
-  background-size: 98px 280px;
-  image-rendering: pixelated;
+  background-size: 169px 448px;
 }
 [data-theme="dark"] .floor-lamp { background-image: url(../img/books/lamp-on.png); }
 /* тёплое свечение вокруг абажура — только ночью */
 .floor-lamp::before {
   content: "";
   position: absolute;
-  top: -70px;
+  top: -140px;
   left: 50%;
-  width: 280px;
-  height: 280px;
+  width: 480px;
+  height: 480px;
   transform: translateX(-50%);
   background: radial-gradient(circle, rgba(255, 190, 90, 0.30) 0%, rgba(255, 190, 90, 0.12) 42%, transparent 68%);
   opacity: 0;
@@ -733,24 +733,20 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
   margin-bottom: var(--board-h);
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  image-rendering: pixelated;
   pointer-events: none;
 }
-.decor-lamp { width: 98px; height: 96px; background-image: url(../img/books/decor-lamp.png); }
-.decor-cat { width: 103px; height: 64px; background-image: url(../img/books/decor-cat.png); }
-.decor-plant { width: 48px; height: 72px; background-image: url(../img/books/decor-plant.png); }
-/* ночью настольная лампа светит из-под вуали */
-[data-theme="dark"] .decor-lamp { z-index: 4; }
-.decor-lamp::before {
-  content: "";
-  position: absolute;
-  inset: -56px;
-  background: radial-gradient(circle, rgba(255, 190, 90, 0.26), transparent 65%);
-  opacity: 0;
-  transition: opacity 0.35s var(--ease);
-  pointer-events: none;
+/* стеклянный клош с бабочкой (файл исторически называется decor-lamp) */
+.decor-lamp { width: 93px; height: 120px; background-image: url(../img/books/decor-lamp.png); }
+/* кот лежит на доске, лапа и хвост свисают с её края:
+   в спрайте линия тела на 31px выше нижнего края → опускаем на доску */
+.decor-cat {
+  width: 232px;
+  height: 96px;
+  background-image: url(../img/books/decor-cat.png);
+  margin-bottom: calc(var(--board-h) - 31px);
+  z-index: 2;
 }
-[data-theme="dark"] .decor-lamp::before { opacity: 1; }
+.decor-plant { width: 244px; height: 180px; background-image: url(../img/books/decor-plant.png); }
 
 .bookcase {
   max-width: var(--maxw-hero);
@@ -802,10 +798,26 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
 }
 [data-theme="dark"] .bookcase-inner::after { background: rgba(26, 15, 5, 0.58); }
 [data-theme="dark"] .bookcase { filter: brightness(0.82); }
-/* наведённая книга выныривает из-под вуали — как будто на неё падает свет */
+/* корешки ночью стоят над вуалью и ловят тёплый свет ламп сверху */
+[data-theme="dark"] .book { z-index: 4; }
+[data-theme="dark"] .book-spine {
+  filter: brightness(0.96);
+  box-shadow: 0 0 16px rgba(255, 190, 90, 0.16);
+}
+[data-theme="dark"] .book-spine::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 195, 100, 0.30) 0%, rgba(255, 195, 100, 0.08) 45%, rgba(26, 15, 5, 0.22) 100%);
+  pointer-events: none;
+}
+/* наведённая книга ярче остальных — как будто свет упал именно на неё */
 [data-theme="dark"] .book:hover,
 [data-theme="dark"] .book:focus-visible,
-[data-theme="dark"] .book.is-open { z-index: 4; }
+[data-theme="dark"] .book.is-open { z-index: 5; }
+[data-theme="dark"] .book:hover .book-spine,
+[data-theme="dark"] .book:focus-visible .book-spine,
+[data-theme="dark"] .book.is-open .book-spine { filter: brightness(1.08); }
 
 /* --- корешок --- */
 
@@ -838,9 +850,6 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
   pointer-events: none;
   z-index: 1;
 }
-/* название на томе серии начинается ниже бейджа с номером */
-.book-part + .book-title { padding-top: 30px; }
-
 .book-spine {
   position: relative;
   display: flex;
@@ -849,41 +858,23 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
   overflow: hidden;
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  image-rendering: pixelated;        /* чёткие пиксели при масштабировании спрайта */
   transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
 }
 
 /* спрайты корешков — вариант выбирается детерминированно из хэша названия поста;
-   размеры = размер нарезанного спрайта × 0.55 */
-.book-s0 .book-spine { background-image: url(../img/books/spine-00.png); width: 26px; height: 186px; }
-.book-s1 .book-spine { background-image: url(../img/books/spine-01.png); width: 28px; height: 185px; }
-.book-s2 .book-spine { background-image: url(../img/books/spine-02.png); width: 30px; height: 189px; }
-.book-s3 .book-spine { background-image: url(../img/books/spine-03.png); width: 28px; height: 189px; }
-.book-s4 .book-spine { background-image: url(../img/books/spine-04.png); width: 31px; height: 214px; }
-.book-s5 .book-spine { background-image: url(../img/books/spine-05.png); width: 31px; height: 217px; }
-.book-s6 .book-spine { background-image: url(../img/books/spine-06.png); width: 32px; height: 217px; }
-.book-s7 .book-spine { background-image: url(../img/books/spine-07.png); width: 32px; height: 217px; }
-.book-s8 .book-spine { background-image: url(../img/books/spine-08.png); width: 42px; height: 229px; }
-.book-s9 .book-spine { background-image: url(../img/books/spine-09.png); width: 40px; height: 221px; }
-.book-s10 .book-spine { background-image: url(../img/books/spine-10.png); width: 46px; height: 229px; }
-.book-s11 .book-spine { background-image: url(../img/books/spine-11.png); width: 40px; height: 236px; }
-
-.book-title {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  max-height: 100%;
-  padding: 10px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--font);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--spine-text);
-  /* усиленная тень: текст должен читаться и на светлых спрайтах */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 6px rgba(0, 0, 0, 0.35);
-}
+   гладкий арт: PNG запечён ×2 от CSS-размера (ретина), масштабирование браузером гладкое */
+.book-s0 .book-spine { background-image: url(../img/books/spine-00.png); width: 31px; height: 168px; }
+.book-s1 .book-spine { background-image: url(../img/books/spine-01.png); width: 33px; height: 169px; }
+.book-s2 .book-spine { background-image: url(../img/books/spine-02.png); width: 31px; height: 168px; }
+.book-s3 .book-spine { background-image: url(../img/books/spine-03.png); width: 32px; height: 169px; }
+.book-s4 .book-spine { background-image: url(../img/books/spine-04.png); width: 34px; height: 201px; }
+.book-s5 .book-spine { background-image: url(../img/books/spine-05.png); width: 33px; height: 201px; }
+.book-s6 .book-spine { background-image: url(../img/books/spine-06.png); width: 30px; height: 200px; }
+.book-s7 .book-spine { background-image: url(../img/books/spine-07.png); width: 31px; height: 200px; }
+.book-s8 .book-spine { background-image: url(../img/books/spine-08.png); width: 33px; height: 232px; }
+.book-s9 .book-spine { background-image: url(../img/books/spine-09.png); width: 34px; height: 217px; }
+.book-s10 .book-spine { background-image: url(../img/books/spine-10.png); width: 36px; height: 231px; }
+.book-s11 .book-spine { background-image: url(../img/books/spine-11.png); width: 32px; height: 213px; }
 
 /* выдвижение с полки */
 .book:hover .book-spine,
