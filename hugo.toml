@@ -3,10 +3,10 @@
 #   baseURL, title, [params] author/tagline/description
 # ============================================================
 
-baseURL = "https://example.com/"   # ← замените на свой домен (со слэшем на конце)
+baseURL = "https://ichistiakov.github.io/"   # со слэшем на конце
 locale = "ru-RU"
 defaultContentLanguage = "ru"
-title = "Мария Ветрова"            # ← ваше имя: заголовок сайта и логотип в шапке
+title = "Юрий Чистяков"            # заголовок сайта и логотип в шапке
 hasCJKLanguage = false
 enableEmoji = true
 timeZone = "Europe/Moscow"
@@ -19,9 +19,9 @@ enableRobotsTXT = true
 
 [params]
   shelfRows = 5                    # минимум полок в книжном шкафу на главной
-  author = "Мария Ветрова"         # ← подпись автора в постах и schema.org
-  tagline = "Пишу о технологиях, дизайне и работе с AI-агентами"
-  description = "Личный блог: заметки о технологиях, инструментах и осмыслении происходящего."
+  author = "Юрий Чистяков"         # подпись автора в постах и schema.org
+  tagline = "Личный блог — книжная полка: каждая статья — книга"
+  description = "Личный блог Юрия Чистякова. Главная страница — книжный шкаф: каждая статья — книга на полке."
   heroImage = "img/hero.jpg"       # портрет для страницы «Кто я» (лежит в assets/img/)
 
 [menus]
@@ -29,30 +29,6 @@ enableRobotsTXT = true
     name = "Главная"
     pageRef = "/"
     weight = 10
-  [[menus.main]]
-    name = "Кто я"
-    pageRef = "/kto-ya"
-    weight = 20
-  [[menus.main]]
-    name = "Блог"
-    pageRef = "/blog"
-    weight = 30
-  [[menus.main]]
-    name = "Проекты"
-    pageRef = "/proekty"
-    weight = 40
-  [[menus.main]]
-    name = "Now"
-    pageRef = "/now"
-    weight = 50
-  [[menus.main]]
-    name = "Библиотека"
-    pageRef = "/biblioteka"
-    weight = 60
-  [[menus.main]]
-    name = "Контакты"
-    pageRef = "/kontakty"
-    weight = 70
 
 [taxonomies]
   tag = "tags"
