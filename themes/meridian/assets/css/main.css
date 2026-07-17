@@ -927,12 +927,14 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
 .book.edge-right:focus-visible .book-card,
 .book.edge-right.is-open .book-card { transform: translateX(0) translateY(0); }
 
-.card-title { font-size: 15px; line-height: 1.35; color: var(--fg); }
-.card-date { font-size: 12px; color: var(--fg-muted); }
-.card-summary { font-size: 13px; line-height: 1.5; color: var(--fg-soft); }
+/* карточка всегда на светлом фоне — цвета фиксированные, не из переменных темы,
+   иначе в тёмной теме светлый текст пропадает на светлой карточке */
+.card-title { font-size: 15px; line-height: 1.35; color: #16211f; }
+.card-date { font-size: 12px; color: #8a9691; }
+.card-summary { font-size: 13px; line-height: 1.5; color: #56635f; }
 .card-tags { display: flex; flex-wrap: wrap; gap: 4px 8px; }
-.card-tag { font-size: 12px; color: var(--accent); }
-.card-hint { font-size: 12px; font-weight: 600; color: var(--accent-deep); }
+.card-tag { font-size: 12px; color: #0f766e; }
+.card-hint { font-size: 12px; font-weight: 600; color: #0b5a54; }
 
 /* --- мобильная вёрстка --- */
 
