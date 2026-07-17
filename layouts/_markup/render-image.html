@@ -1,0 +1,19 @@
+{{- /* Картинки в тексте поста: ![подпись](фото.jpg "необязательная подпись")
+       - фото из папки поста (page bundle) — сжимается и публикуется автоматически;
+       - путь /img/... или внешний URL — берётся как есть. */ -}}
+{{- $src := .Destination -}}
+{{- $img := .Page.Resources.GetMatch $src -}}
+{{- $alt := .Text -}}
+{{- $caption := or .Title "" -}}
+<figure>
+{{- if $img }}
+  {{- $r := $img }}
+  {{- if gt $img.Width 1400 }}{{ $r = $img.Resize "1400x q82" }}{{ end }}
+  <img src="{{ $r.RelPermalink }}" width="{{ $r.Width }}" height="{{ $r.Height }}" alt="{{ $alt }}" loading="lazy">
+{{- else }}
+  <img src="{{ $src | safeURL }}" alt="{{ $alt }}" loading="lazy">
+{{- end }}
+{{- with $caption }}
+  <figcaption>{{ . }}</figcaption>
+{{- end }}
+</figure>

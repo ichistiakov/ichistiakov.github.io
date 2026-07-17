@@ -1,0 +1,50 @@
+{{ define "main" }}
+<article class="post">
+  <header class="post__head">
+    <h1 class="post__title">{{ .Title }}</h1>
+    <p class="post__meta">
+      <time class="mono" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span class="post__author">{{ site.Params.author }}</span>
+    </p>
+    {{- with .GetTerms "tags" }}
+    <ul class="tag-list">
+      {{- range . }}<li><a class="tag mono" href="{{ .RelPermalink }}">#{{ .Title }}</a></li>{{ end }}
+    </ul>
+    {{- end }}
+  </header>
+
+  {{- if not .Params.hideCover }}
+  {{- with .Resources.GetMatch "cover.*" }}
+  {{- $cover := .Resize "1600x" }}
+  <figure class="post__cover">
+    <img src="{{ $cover.RelPermalink }}" width="{{ $cover.Width }}" height="{{ $cover.Height }}" alt="{{ $.Title }}" loading="eager">
+    <span class="hero__photo-tint" aria-hidden="true"></span>
+  </figure>
+  {{- end }}
+  {{- end }}
+
+  <div class="prose post__body">
+    {{ .Content }}
+  </div>
+
+  {{- with .Params.discuss }}
+  <p class="post__tg"><a class="arrow-link" href="{{ . }}" target="_blank" rel="noopener">Обсудить</a></p>
+  {{- end }}
+
+  {{- $related := site.RegularPages.Related . | first 3 }}
+  {{- with $related }}
+  <aside class="related">
+    <h2 class="related__title"><span class="mono-tag">Читайте также</span></h2>
+    <ul class="post-feed">
+      {{- range . }}
+        <li class="post-feed__item">
+          <a class="post-feed__link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+          <time class="post-feed__date mono" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+        </li>
+      {{- end }}
+    </ul>
+  </aside>
+  {{- end }}
+</article>
+{{ end }}

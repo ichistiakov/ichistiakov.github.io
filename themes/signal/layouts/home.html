@@ -1,0 +1,63 @@
+{{ define "main" }}
+{{- $s := hugo.Data.site -}}
+{{- $links := $s.links -}}
+
+{{/* ============ 1. HERO (без фото) ============ */}}
+<section class="hero">
+  <div class="hero-text">
+    <h1 class="title">{{ site.Title }}</h1>
+    {{- with site.Params.tagline }}<p class="tagline">{{ . }}</p>{{ end }}
+    <div class="hero-welcome">{{ .Content }}</div>
+  </div>
+</section>
+
+{{/* ============ 2. СВЕЖИЕ ПОСТЫ ============ */}}
+{{- with site.GetPage "/blog" }}
+{{- $blogURL := .RelPermalink }}
+{{- with .RegularPagesRecursive.ByDate.Reverse }}
+<section class="block">
+  <h2>Свежие посты</h2>
+  <ul class="post-list">
+    {{- range first 5 . }}
+    <li class="post-item">
+      <span class="starred">*</span>
+      <a class="big-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+      <span class="date">{{ partial "date.html" . }}</span>
+    </li>
+    {{- end }}
+  </ul>
+  <p class="cta"><a class="arrow-link" href="{{ $blogURL }}">Все посты&nbsp;→</a></p>
+</section>
+{{- end }}
+{{- end }}
+
+{{/* ============ 3. ПРОЕКТЫ ============ */}}
+{{- with $s.projects }}
+<section class="block">
+  <h2>Проекты</h2>
+  <ul class="starred-list">
+    {{- range . }}
+    <li>
+      {{- if .url }}<a class="big-link" href="{{ .url }}" target="_blank" rel="noopener">{{ .name }}</a>
+      {{- else }}<span class="big-link">{{ .name }}</span>{{ end }}
+      {{- with .note }} <span class="aside">— {{ . }}</span>{{ end }}
+    </li>
+    {{- end }}
+  </ul>
+  {{- with site.GetPage "/proekty" }}
+  <p class="cta"><a class="arrow-link" href="{{ .RelPermalink }}">Все проекты&nbsp;→</a></p>
+  {{- end }}
+</section>
+{{- end }}
+
+{{/* ============ 4. КОНТАКТЫ ============ */}}
+<section class="block">
+  <h2>Контакты</h2>
+  {{- with $s.contacts_lead }}<p class="lede">{{ . }}</p>{{ end }}
+  <p class="cta">
+    {{- with $links.telegram }}<a class="arrow-link" href="{{ . }}" target="_blank" rel="noopener">Телеграм&nbsp;→</a>{{ end }}
+    {{- with $links.email }}<a class="arrow-link" href="mailto:{{ replace . "@" "&#64;" | safeHTML }}">Почта&nbsp;→</a>{{ end }}
+    {{- with $links.github }}<a class="arrow-link" href="{{ . }}" target="_blank" rel="noopener">Гитхаб&nbsp;→</a>{{ end }}
+  </p>
+</section>
+{{ end }}

@@ -1,0 +1,15 @@
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="logo" href="{{ site.Home.RelPermalink }}">{{ site.Title }}</a>
+    <nav class="nav" aria-label="Главное меню">
+      {{- $current := . -}}
+      {{- range site.Menus.main }}
+        {{- $active := or ($current.IsMenuCurrent "main" .) ($current.HasMenuCurrent "main" .) -}}
+        {{- $isHome := and (eq .PageRef "/") $current.IsHome -}}
+        {{- $href := .URL }}{{ with .Page }}{{ $href = .RelPermalink }}{{ end }}
+        <a href="{{ $href }}"{{ if or $active $isHome }} class="active" aria-current="page"{{ end }}>{{ .Name }}</a>
+      {{- end }}
+    </nav>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Переключить светлую/тёмную тему">☾</button>
+  </div>
+</header>

@@ -1,0 +1,82 @@
+{{ define "main" }}
+{{ $data := hugo.Data.site }}
+{{ $l := $data.links }}
+
+<article class="home">
+
+  {{/* 1. HERO */}}
+  <section class="hero">
+    {{ with resources.Get site.Params.heroImage }}
+      {{ $img := .Fill "320x320 Center q88" }}
+      <figure class="hero__portrait">
+        <img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" alt="{{ site.Params.author }}" loading="eager">
+      </figure>
+    {{ end }}
+    <h1 class="hero__title">{{ site.Title }}</h1>
+    {{ with site.Params.tagline }}<p class="hero__tagline">{{ . }}</p>{{ end }}
+    <div class="hero__lede prose">
+      {{ .Content }}
+    </div>
+  </section>
+
+  {{/* 2. СВЕЖИЕ ПОСТЫ */}}
+  {{ with site.GetPage "/blog" }}
+  <section class="block">
+    <hr class="rule">
+    <p class="block__num">01</p>
+    <h2 class="block__title">Свежие посты</h2>
+    <div class="block__body prose">
+      <ol class="post-index">
+        {{ range first 5 .RegularPagesRecursive.ByDate.Reverse }}
+          <li class="post-index__item">
+            <a class="post-index__title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+            <time class="post-index__date" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+          </li>
+        {{ end }}
+      </ol>
+      <p><a class="arrow-link" href="{{ .RelPermalink }}">Все посты</a></p>
+    </div>
+  </section>
+  {{ end }}
+
+  {{/* 3. ПРОЕКТЫ */}}
+  {{ with $data.projects }}
+  <section class="block">
+    <hr class="rule">
+    <p class="block__num">02</p>
+    <h2 class="block__title">Проекты</h2>
+    <div class="block__body prose">
+      <ul class="plain">
+        {{ range . }}
+          <li>
+            {{ if .url }}<a href="{{ .url }}" target="_blank" rel="noopener">{{ .name }}</a>{{ else }}{{ .name }}{{ end }}
+            {{ with .note }} — <span class="muted">{{ . }}</span>{{ end }}
+          </li>
+        {{ end }}
+      </ul>
+      {{ with site.GetPage "/proekty" }}
+        <p><a class="arrow-link" href="{{ .RelPermalink }}">Подробнее о проектах</a></p>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  {{/* 4. КОНТАКТЫ */}}
+  {{ with $data.contacts_lead }}
+  <section class="block">
+    <hr class="rule">
+    <p class="block__num">03</p>
+    <h2 class="block__title">Контакты</h2>
+    <div class="block__body prose">
+      <p>{{ . }}</p>
+      <p>
+        {{ with $l.telegram }}<a href="{{ . }}" target="_blank" rel="noopener">Телеграм</a>{{ end }}
+        {{ with $l.email }} · <a href="mailto:{{ replace . "@" "&#64;" | safeHTML }}">почта</a>{{ end }}
+        {{ with $l.github }} · <a href="{{ . }}" target="_blank" rel="noopener">гитхаб</a>{{ end }}
+      </p>
+    </div>
+  </section>
+  {{ end }}
+
+</article>
+{{ end }}

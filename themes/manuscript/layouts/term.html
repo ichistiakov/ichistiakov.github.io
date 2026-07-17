@@ -1,0 +1,16 @@
+{{ define "main" }}
+<div class="page-head">
+  <h1 class="page-head__title">#{{ .Title }}</h1>
+  <p class="page-head__sub">Посты по метке</p>
+</div>
+<section class="journal">
+  {{ range .Pages.ByDate.Reverse }}
+    <article class="journal__item">
+      <hr class="rule">
+      <time class="journal__date" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+      <h2 class="journal__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      {{ with .Params.summary }}<p class="journal__summary">{{ . }}</p>{{ end }}
+    </article>
+  {{ end }}
+</section>
+{{ end }}

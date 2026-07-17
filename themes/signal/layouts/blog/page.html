@@ -1,0 +1,50 @@
+{{ define "main" }}
+<article class="prose post">
+  <h1 class="title">{{ .Title }}</h1>
+
+  <p class="post-meta">
+    <span class="date">{{ partial "date.html" . }}</span>
+    <span class="sep">·</span>
+    <span class="author">{{ site.Params.author }}</span>
+    {{- with .GetTerms "tags" }}
+    <span class="sep">·</span>
+    <span class="tags">
+      {{- range . }}<a class="tag" href="{{ .RelPermalink }}">#{{ .Title | lower }}</a> {{ end -}}
+    </span>
+    {{- end }}
+  </p>
+
+  {{- if not .Params.hideCover }}
+  {{- with .Resources.GetMatch "cover.*" }}
+  {{- $cover := .Resize "1600x" }}
+  <figure class="post-cover">
+    <img src="{{ $cover.RelPermalink }}" width="{{ $cover.Width }}" height="{{ $cover.Height }}" alt="{{ $.Title }}" loading="eager">
+  </figure>
+  {{- end }}
+  {{- end }}
+
+  <div class="content">
+    {{ .Content }}
+  </div>
+
+  {{- with .Params.discuss }}
+  <p class="post-source"><a class="arrow-link" href="{{ . }}" target="_blank" rel="noopener">Обсудить&nbsp;→</a></p>
+  {{- end }}
+
+  {{- $related := site.RegularPages.Related . | first 3 -}}
+  {{- with $related }}
+  <aside class="related">
+    <h2>Читайте также</h2>
+    <ul class="post-list">
+      {{- range . }}
+      <li class="post-item">
+        <span class="starred">*</span>
+        <a class="big-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        <span class="date">{{ partial "date.html" . }}</span>
+      </li>
+      {{- end }}
+    </ul>
+  </aside>
+  {{- end }}
+</article>
+{{ end }}

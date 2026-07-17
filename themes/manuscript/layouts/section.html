@@ -1,0 +1,18 @@
+{{ define "main" }}
+<div class="page-head">
+  <h1 class="page-head__title">{{ .Title }}</h1>
+  {{ with .Description }}<p class="page-head__sub">{{ . }}</p>{{ end }}
+</div>
+
+<section class="journal">
+  {{ range .Pages.ByDate.Reverse }}
+    <article class="journal__item">
+      <hr class="rule">
+      <time class="journal__date" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+      <h2 class="journal__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      <p class="journal__summary">{{ with .Params.summary }}{{ . }}{{ else }}{{ .Summary }}{{ end }}</p>
+      <p><a class="arrow-link" href="{{ .RelPermalink }}">Читать</a></p>
+    </article>
+  {{ end }}
+</section>
+{{ end }}

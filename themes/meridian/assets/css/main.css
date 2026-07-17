@@ -1,0 +1,958 @@
+/* meridian — спокойная современная тема. Белый фон, изумрудный акцент, Inter + PT Serif.
+   Акцент используется дозированно: ссылки, буллеты, маркеры и ховеры. Слова в тексте не красим.
+   Все токены стиля собраны здесь — менять тему удобнее всего правкой этих переменных. */
+
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f6f7f7;
+  --fg: #16211f;
+  --fg-soft: #56635f;
+  --fg-muted: #8a9691;
+  --line: #e6eae8;
+  --line-strong: #d3dad7;
+
+  /* изумрудный акцент ссылок */
+  --accent: #0f766e;
+  --accent-deep: #0b5a54;
+  --accent-soft: #e6f2f0;
+
+  /* янтарные точки-буллеты */
+  --dot: #d97706;
+  --dot-green: var(--dot);
+  --dot-amber: var(--dot);
+  --dot-muted: var(--dot);
+
+  --maxw: 860px;
+  --maxw-hero: 1120px;
+
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "PT Serif", Georgia, serif;
+
+  --radius: 0px; /* прямые углы — часть характера темы */
+  --ease: cubic-bezier(.2, .6, .2, 1);
+
+  /* книжная полка на главной: тёплая палитра «под Миядзаки»;
+     количество полок задаётся в hugo.toml (params.shelfRows) */
+  --book-slot: 256px;   /* высота ряда: зона книги + доска полки; = высоте тайла shelf-row.png */
+  --board-h: 18px;      /* толщина доски полки; = высоте доски в тайле */
+  --wood-board: #8a5f3c;
+  --wood-edge: #6e4a2e;
+  --wood-bg: #f8f1e4;
+  --spine-text: #f7efdd;
+  --spine-c0: #ba5b47; /* кирпичный */
+  --spine-c1: #7a8c5c; /* оливковый */
+  --spine-c2: #c9973f; /* горчичный */
+  --spine-c3: #4f7369; /* хвойный */
+  --spine-c4: #8c5a72; /* пыльная слива */
+  --spine-c5: #d9a05b; /* песочный */
+  --spine-c6: #6b4f3a; /* кофейный */
+  --spine-c7: #a3705b; /* глиняный */
+}
+
+/* тёмная тема: тёплый почти-чёрный, переключатель в шапке (см. baseof.html) */
+:root[data-theme="dark"] {
+  --bg: #16130e;
+  --bg-soft: #1e1a13;
+  --fg: #e9e2d2;
+  --fg-soft: #b5ab97;
+  --fg-muted: #7f7666;
+  --line: #2b261d;
+  --line-strong: #3c3528;
+  --accent: #63b8aa;
+  --accent-deep: #82cabd;
+  --accent-soft: #1c2b26;
+  --wood-bg: #241c12;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 18px;
+  line-height: 1.65;
+  font-weight: 400;
+  color: var(--fg);
+  background: var(--bg);
+  letter-spacing: -0.003em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+/* ссылки — сине-фиолетовые с подчёркиванием, как на teletype */
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color .18s var(--ease), text-decoration-color .18s var(--ease);
+}
+a:hover { color: var(--accent-deep); text-decoration-color: var(--accent-deep); }
+
+h1, h2, h3, h4 {
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+
+.wrap {
+  width: 100%;
+  max-width: var(--maxw-hero);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(140%) blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+[data-theme="dark"] .site-header { background: rgba(22, 19, 14, 0.85); }
+
+/* кнопка переключения темы в шапке */
+.theme-toggle {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 19px;
+  line-height: 1;
+  padding: 6px 8px;
+  color: var(--fg-soft);
+  transition: color 0.18s var(--ease), transform 0.18s var(--ease);
+}
+.theme-toggle:hover { color: var(--fg); transform: rotate(-12deg); }
+.header-inner {
+  max-width: var(--maxw-hero);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 64px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.logo {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  text-decoration: none;
+}
+.logo:hover { color: var(--accent); }
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  align-items: center;
+}
+.nav a {
+  color: var(--fg-soft);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 4px 0;
+  position: relative;
+  text-decoration: none;
+}
+.nav a:hover { color: var(--fg); }
+.nav a.active {
+  color: var(--fg);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+/* ---------- Main spacing ---------- */
+main.wrap {
+  padding-top: 56px;
+  padding-bottom: 80px;
+}
+
+/* ---------- Hero: без фото, крупный заголовок в одну колонку ---------- */
+.hero {
+  max-width: var(--maxw-hero);
+  margin: 0 auto 8px;
+}
+.hero-text { max-width: 820px; }
+.hero-text h1 {
+  font-size: clamp(40px, 7vw, 64px);
+  font-weight: 800;
+  margin: 0 0 14px;
+  letter-spacing: -0.035em;
+}
+.hero .tagline {
+  font-size: clamp(17px, 2.4vw, 22px);
+  color: var(--accent);
+  font-weight: 600;
+  margin: 0 0 26px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+.hero-welcome { color: var(--fg-soft); font-size: 18px; }
+.hero-welcome p { margin: 0 0 14px; }
+.hero-welcome p:last-child { margin-bottom: 0; }
+
+/* ---------- Home sections ---------- */
+.home-section {
+  max-width: var(--maxw-hero);
+  margin: 0 auto;
+  padding: 44px 0;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 40px;
+}
+.hero + .home-section { margin-top: 40px; }
+
+.section-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--fg-muted);
+  margin: 4px 0 0;
+}
+.section-body { max-width: 760px; }
+.section-body > *:first-child { margin-top: 0; }
+.section-body > *:last-child { margin-bottom: 0; }
+
+.lead { font-size: 18px; color: var(--fg); margin: 0 0 18px; }
+
+/* dot-lists like altshuler.io */
+.dot-list { list-style: none; margin: 0 0 18px; padding: 0; }
+.dot-list li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  padding: 7px 0;
+}
+.dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 9px;
+  background: var(--dot-green);
+}
+.dot-green { background: var(--dot-green); }
+.dot-amber { background: var(--dot-amber); }
+.dot-muted { background: var(--dot-muted); }
+
+/* все точки — одинаково фиолетовые */
+.dot-content { display: block; }
+.prog-name { font-weight: 600; color: var(--fg); }
+a.prog-name { color: var(--accent); }
+a.prog-name:hover { color: var(--accent-deep); }
+.prog-note { display: block; color: var(--fg-soft); font-size: 16px; margin-top: 2px; }
+.prog-group-label {
+  font-weight: 600;
+  color: var(--fg-soft);
+  font-size: 15px;
+  margin: 18px 0 6px;
+}
+.prog-inline { margin: 18px 0 6px; font-weight: 500; }
+/* плашка-выделение в духе «Coming early 2026» на altshuler.io */
+.prog-group-label--inline {
+  display: inline;
+  margin: 0 2px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--dot);
+  background: color-mix(in srgb, var(--dot) 13%, transparent);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+.clients { color: var(--fg-soft); margin: 4px 0 18px; }
+.cta { color: var(--fg-soft); margin: 0; }
+
+.link-arrow {
+  font-weight: 600;
+  display: inline-block;
+  line-height: 1.9;
+}
+.link-arrow:hover { transform: translateX(2px); }
+
+/* post list (home + related) */
+.post-list { list-style: none; margin: 0 0 18px; padding: 0; }
+.post-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.post-item:first-child { padding-top: 0; }
+.post-title {
+  display: block;
+  font-weight: 600;
+  font-size: 17.5px;
+  color: var(--fg);
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+  text-decoration: none;
+}
+.post-title:hover { color: var(--accent); }
+.post-date {
+  display: block;
+  color: var(--fg-muted);
+  font-size: 13.5px;
+  margin-top: 4px;
+}
+
+/* ---------- Narrow page / article ---------- */
+.page-narrow {
+  max-width: var(--maxw);
+  margin: 0 auto;
+}
+/* пост блога — узкая колонка чтения (700px); страницы остаются шире */
+.page-narrow.post { max-width: 700px; }
+.page-head { margin-bottom: 28px; }
+.page-head h1 {
+  font-size: clamp(28px, 5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+.page-intro { color: var(--fg-soft); margin-top: 14px; font-size: 18px; }
+.page-intro p { margin: 0; }
+
+/* blog list */
+.blog-list { list-style: none; margin: 0; padding: 0; }
+.blog-entry {
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+}
+.blog-entry:first-child { border-top: none; padding-top: 8px; }
+.blog-entry--thumb {
+  display: grid;
+  grid-template-columns: 1fr 200px;
+  gap: 28px;
+  align-items: start;
+}
+.blog-entry-thumb img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.blog-entry .tag-list { margin-top: 12px; }
+.blog-entry-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  margin: 0 0 6px;
+  line-height: 1.25;
+}
+.blog-entry-title a { color: var(--fg); text-decoration: none; }
+.blog-entry-title a:hover { color: var(--accent); }
+.blog-entry-date { display: block; color: var(--fg-muted); font-size: 14px; margin-bottom: 10px; }
+.blog-entry-summary { margin: 0; color: var(--fg-soft); font-size: 17px; }
+
+/* post cover */
+.post-cover {
+  margin: 0 0 32px;
+}
+.post-cover img { width: 50%; height: auto; display: block; }
+/* картинки внутри текста поста (render-image hook) */
+.prose figure { margin: 28px 0; text-align: center; }
+.prose figure img { width: 100%; height: auto; display: block; margin: 0 auto; }
+.prose figcaption { margin-top: 6px; font-size: 15px; color: var(--fg-muted); line-height: 1.4; text-align: center; }
+
+/* post meta */
+.post-head { margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.post-meta { margin-top: 16px; color: var(--fg-muted); font-size: 14.5px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.post-author { color: var(--fg-soft); }
+.meta-sep { color: var(--line-strong); }
+/* теги — просто текст с решёткой, без плашек */
+.tag-list { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 14px 0 0; padding: 0; }
+.tag-list a {
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: 500;
+  text-decoration: none;
+}
+.tag-list a:hover { color: var(--accent-deep); text-decoration: underline; text-underline-offset: 3px; }
+
+/* prose typography */
+.prose { font-size: 18.5px; line-height: 1.72; color: var(--fg); }
+/* тело поста блога — сериф PT Serif; подзаголовки остаются sans (Inter), как у Medium */
+.post .prose { font-family: var(--font-serif); font-size: 20px; line-height: 1.6; }
+.post .prose h2, .post .prose h3 { font-family: var(--font); }
+.prose > *:first-child { margin-top: 0; }
+.prose p { margin: 0 0 1.55em; }
+.prose div:has(> iframe) { margin: 1.5em 0; }
+/* подпись к видео */
+.prose .video-caption { margin: -0.8em 0 2.2em; font-size: 14.5px; font-style: italic; color: var(--fg-muted); line-height: 1.45; text-align: center; }
+.prose h2 {
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 2.2em 0 1.05em;
+}
+.prose h3 { font-size: 20px; font-weight: 700; margin: 1.6em 0 0.5em; }
+.prose ul, .prose ol { margin: 0 0 1.25em; padding-left: 1.3em; }
+.prose li { margin: 0.4em 0; }
+.prose li::marker { color: var(--accent); }
+.prose strong { font-weight: 700; color: var(--fg); }
+.prose blockquote {
+  margin: 1.5em 0;
+  padding: 2px 0 2px 20px;
+  border-left: 3px solid var(--accent);
+  color: var(--fg-soft);
+  font-style: italic;
+}
+.prose code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.86em;
+  background: var(--bg-soft);
+  padding: 0.12em 0.4em;
+  border-radius: 5px;
+}
+.prose pre {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+.prose pre code { background: none; padding: 0; }
+.prose hr { border: none; border-top: 1px solid var(--line); margin: 2.2em 0; }
+.prose img { border-radius: var(--radius); margin: 1.5em 0; }
+
+/* одиночное фото в половину ширины колонки — по центру, с воздухом вокруг */
+.prose figure.is-half { max-width: 50%; margin: 36px auto; }
+@media (max-width: 480px) { .prose figure.is-half { max-width: 100%; } }
+
+/* ---------- Карусель-листалка ---------- */
+.prose .carousel { margin: 32px 0; }
+/* до инициализации JS — картинки просто идут столбиком (graceful degradation) */
+.carousel:not(.carousel--ready) figure { margin: 0 0 12px; }
+.carousel--ready { position: relative; }
+.carousel-viewport {
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+}
+.carousel-track {
+  display: flex;
+  transition: transform .5s var(--ease);
+  will-change: transform;
+}
+.carousel-slide { flex: 0 0 100%; min-width: 100%; }
+.carousel-slide figure { margin: 0; }
+.carousel-slide figure img {
+  width: 100%;
+  height: clamp(260px, 46vh, 470px);
+  object-fit: contain;
+  display: block;
+  margin: 0;
+  border-radius: 0;
+  background: var(--bg-soft);
+}
+
+/* стрелки по бокам — кликабельная зона на всю высоту картинки */
+.carousel-arrow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(48px, 12%, 88px);
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  color: var(--fg);
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .18s var(--ease);
+}
+/* высота зоны = высота вьюпорта (вычитаем рамку) */
+.carousel--ready .carousel-arrow { height: clamp(260px, 46vh, 470px); }
+.carousel-prev { left: 0; justify-content: flex-start; padding-left: 10px; }
+.carousel-next { right: 0; justify-content: flex-end; padding-right: 10px; }
+.carousel-arrow span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 10px rgba(24, 24, 38, 0.16);
+  font-size: 26px;
+  line-height: 1;
+  font-family: var(--font);
+  padding-bottom: 3px;
+  transition: background .18s var(--ease), transform .18s var(--ease);
+}
+.carousel-arrow:hover span { background: #fff; transform: scale(1.06); }
+.carousel-arrow:focus-visible { outline: none; }
+.carousel-arrow:focus-visible span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* подпись текущего слайда */
+.carousel-caption {
+  font-family: var(--font);
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--fg-muted);
+  line-height: 1.45;
+  text-align: center;
+}
+
+/* нижняя навигация: точки + счётчик */
+.carousel-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 16px;
+  position: relative;
+}
+.carousel-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-items: center;
+}
+.carousel-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--line-strong);
+  cursor: pointer;
+  transition: background .18s var(--ease), transform .18s var(--ease);
+}
+.carousel-dot:hover { background: var(--fg-muted); }
+.carousel-dot[aria-current="true"] {
+  background: var(--accent);
+  transform: scale(1.35);
+}
+.carousel-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.carousel-counter {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--font);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--fg-muted);
+}
+@media (max-width: 480px) {
+  .carousel-arrow span { width: 38px; height: 38px; font-size: 22px; }
+}
+
+.portrait {
+  margin: 0 0 30px;
+  max-width: 320px;
+}
+.portrait img { background: var(--bg-soft); }
+
+.post-source { margin: 32px 0 0; font-weight: 600; }
+
+/* related */
+.related {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+.related .section-label { margin-bottom: 16px; }
+
+/* extras-list — блоки «Проекты»/«Контакты» на страницах (partial page-extras) */
+.prose .extras-list { list-style: none; margin: 1.6em 0; padding: 0; font-family: var(--font); }
+.prose .extras-list li { padding: 12px 0; border-bottom: 1px solid var(--line); margin: 0; }
+.prose .extras-list li:first-child { border-top: 1px solid var(--line); }
+.extras-name { display: block; font-weight: 600; color: var(--fg); }
+a.extras-name { color: var(--accent); text-decoration: none; }
+a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
+.extras-note { display: block; color: var(--fg-soft); font-size: 16px; margin-top: 2px; }
+
+/* taxonomy */
+.term-list { list-style: none; margin: 0; padding: 0; }
+.term-list li { padding: 10px 0; border-bottom: 1px solid var(--line); }
+.term-list a { font-weight: 600; color: var(--fg); text-decoration: none; }
+.term-list a:hover { color: var(--accent); }
+.term-count { color: var(--fg-muted); font-size: 14px; margin-left: 6px; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--line);
+  background: var(--bg-soft);
+  margin-top: 40px;
+}
+.footer-inner {
+  max-width: var(--maxw-hero);
+  padding-top: 44px;
+  padding-bottom: 48px;
+}
+.footer-name { font-weight: 700; font-size: 17px; margin: 0 0 6px; color: var(--fg); }
+.footer-about { color: var(--fg-soft); margin: 0 0 18px; max-width: 680px; font-size: 16px; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.footer-links a { color: var(--fg-soft); font-size: 15px; font-weight: 500; text-decoration: none; }
+.footer-links a:hover { color: var(--accent); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 860px) {
+  .home-section {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 34px 0;
+  }
+  .hero + .home-section { margin-top: 32px; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 17px; }
+  .wrap { padding: 0 18px; }
+  main.wrap { padding-top: 36px; padding-bottom: 56px; }
+  .prose { font-size: 17.5px; }
+  .nav { gap: 2px 14px; }
+  .nav a { font-size: 14px; }
+  .blog-entry-title { font-size: 20px; }
+}
+
+@media (max-width: 640px) {
+  .blog-entry--thumb { grid-template-columns: 1fr; gap: 16px; }
+  .blog-entry-thumb { order: -1; max-width: 320px; }
+}
+/* ---------- Лайтбокс: увеличение картинок статьи по клику ---------- */
+/* Клик по картинке открывает её на весь экран. Для картинок карусели
+   работает галерейный режим — листание влево-вправо (стрелки/←→/свайп). */
+.lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.9); padding: 24px; cursor: zoom-out;
+}
+.lightbox.open { display: flex; }
+.lightbox-img {
+  max-width: 100%; max-height: 92vh; object-fit: contain;
+  border-radius: 6px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+.lightbox-close {
+  position: absolute; top: 14px; right: 18px; z-index: 3;
+  background: none; border: none; color: #fff;
+  font-size: 28px; line-height: 1; cursor: pointer; opacity: 0.8;
+}
+.lightbox-close:hover { opacity: 1; }
+.lightbox-cap {
+  position: absolute; left: 0; right: 0; bottom: 16px;
+  text-align: center; color: #ccc; font-size: 14px; padding: 0 24px;
+}
+.lightbox-arrow {
+  position: absolute; top: 0; bottom: 0; width: clamp(52px, 12%, 110px);
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer; z-index: 2;
+  color: #fff; -webkit-tap-highlight-color: transparent;
+}
+.lightbox-arrow[hidden] { display: none; }
+.lightbox-prev { left: 0; justify-content: flex-start; padding-left: 12px; }
+.lightbox-next { right: 0; justify-content: flex-end; padding-right: 12px; }
+.lightbox-arrow span {
+  display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14); font-size: 30px; line-height: 1;
+  padding-bottom: 3px; transition: background .18s ease, transform .18s ease;
+}
+.lightbox-arrow:hover span { background: rgba(255, 255, 255, 0.26); transform: scale(1.06); }
+/* счётчик кадров лайтбокса (галерея из карусели) */
+.lightbox-counter {
+  position: absolute; top: 18px; left: 50%; transform: translateX(-50%); z-index: 3;
+  color: #ccc; font-size: 13px; letter-spacing: .02em; font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   Книжная полка на главной (концепция «сайт как полка»)
+   Каждый пост — корешок книги: пиксель-арт-спрайт из
+   static/img/books/spine-NN.png (нарезаны из генерации Gemini,
+   масштаб 0.55 от оригинала). Геометрия строк фиксирована:
+   слот книги = var(--book-slot), из них нижние var(--board-h) —
+   доска полки, которую рисует repeating-gradient на .bookcase-inner.
+   ============================================================ */
+
+.shelf-hero { max-width: var(--maxw); margin: 40px auto 28px; }
+.shelf-hero h1 { margin: 0 0 6px; font-size: 34px; letter-spacing: -0.02em; }
+.shelf-hero .tagline { margin: 0 0 10px; color: var(--fg-soft); }
+.shelf-hero .hero-welcome p { margin: 0; color: var(--fg-soft); max-width: 620px; }
+
+/* сцена: шкаф + торшер рядом, стоят на одном «полу» */
+.shelf-scene {
+  max-width: var(--maxw-hero);
+  margin: 0 auto 64px;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+.shelf-scene .bookcase { flex: 1; margin: 0; }
+
+.floor-lamp {
+  position: relative;
+  flex: 0 0 98px;
+  height: 280px;
+  background: url(../img/books/lamp-off.png) no-repeat center bottom;
+  background-size: 98px 280px;
+  image-rendering: pixelated;
+}
+[data-theme="dark"] .floor-lamp { background-image: url(../img/books/lamp-on.png); }
+/* тёплое свечение вокруг абажура — только ночью */
+.floor-lamp::before {
+  content: "";
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  width: 280px;
+  height: 280px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(255, 190, 90, 0.30) 0%, rgba(255, 190, 90, 0.12) 42%, transparent 68%);
+  opacity: 0;
+  transition: opacity 0.35s var(--ease);
+  pointer-events: none;
+}
+[data-theme="dark"] .floor-lamp::before { opacity: 1; }
+
+/* декор на полках: стоит справа, кликов не ловит */
+.decor {
+  position: relative;
+  align-self: flex-end;
+  margin-left: auto;
+  margin-right: 14px;
+  margin-bottom: var(--board-h);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.decor-lamp { width: 98px; height: 96px; background-image: url(../img/books/decor-lamp.png); }
+.decor-cat { width: 103px; height: 64px; background-image: url(../img/books/decor-cat.png); }
+.decor-plant { width: 48px; height: 72px; background-image: url(../img/books/decor-plant.png); }
+/* ночью настольная лампа светит из-под вуали */
+[data-theme="dark"] .decor-lamp { z-index: 4; }
+.decor-lamp::before {
+  content: "";
+  position: absolute;
+  inset: -56px;
+  background: radial-gradient(circle, rgba(255, 190, 90, 0.26), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.35s var(--ease);
+  pointer-events: none;
+}
+[data-theme="dark"] .decor-lamp::before { opacity: 1; }
+
+.bookcase {
+  max-width: var(--maxw-hero);
+  margin: 0 auto 64px;
+  background: var(--wood-bg);
+  /* пиксель-арт-рама: 9-slice, углы 16px из frame.png, рёбра тайлятся */
+  border: 16px solid transparent;
+  border-image: url(../img/books/frame.png) 16 repeat;
+  image-rendering: pixelated;
+  box-shadow: 0 6px 18px rgba(60, 40, 20, 0.18);
+}
+
+.bookcase-inner {
+  /* верхний padding не нужен: запас над книгой заложен в высоту слота */
+  padding: 0 20px;
+  /* два слоя: сверху — доска под каждым рядом книг (тайл высотой в ряд:
+     238px прозрачности + 18px доски), под ней — задник из вертикальных досок.
+     Оба тайла 1:1 с CSS-пикселями, не масштабируются */
+  background:
+    url(../img/books/shelf-row.png) repeat,
+    url(../img/books/backdrop.png) repeat;
+  background-size: 448px var(--book-slot), 318px 300px;
+}
+
+/* одна полка шкафа; пустая — просто ждёт статей.
+   Если книги перерастут ширину, ряд заворачивается, и полка становится
+   вдвое выше — фоновые доски совпадают, т.к. высота кратна слоту */
+.shelf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  min-height: var(--book-slot);
+}
+
+.bookcase-empty { margin: 0 auto; padding: 40px 0 54px; color: var(--fg-muted); }
+
+/* --- ночь в шкафу (тёмная тема) --- */
+
+/* вуаль поверх задника и книг; плавно проявляется при смене темы */
+.bookcase-inner { position: relative; }
+.bookcase-inner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(26, 15, 5, 0);
+  pointer-events: none;
+  z-index: 3;
+  transition: background 0.35s var(--ease);
+}
+[data-theme="dark"] .bookcase-inner::after { background: rgba(26, 15, 5, 0.58); }
+[data-theme="dark"] .bookcase { filter: brightness(0.82); }
+/* наведённая книга выныривает из-под вуали — как будто на неё падает свет */
+[data-theme="dark"] .book:hover,
+[data-theme="dark"] .book:focus-visible,
+[data-theme="dark"] .book.is-open { z-index: 4; }
+
+/* --- корешок --- */
+
+.book {
+  position: relative;
+  height: var(--book-slot);          /* слот: книга + доска полки */
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: var(--board-h);    /* книга стоит на доске */
+  margin-left: var(--jit, 8px);      /* «там и сям»: отступ от соседа из хэша названия */
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* номер тома в серии — как на корешках собраний сочинений */
+.book-part {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  border-radius: 50%;
+  background: rgba(24, 14, 6, 0.5);
+  color: var(--spine-text);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+  z-index: 1;
+}
+/* название на томе серии начинается ниже бейджа с номером */
+.book-part + .book-title { padding-top: 30px; }
+
+.book-spine {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;        /* чёткие пиксели при масштабировании спрайта */
+  transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
+}
+
+/* спрайты корешков — вариант выбирается детерминированно из хэша названия поста;
+   размеры = размер нарезанного спрайта × 0.55 */
+.book-s0 .book-spine { background-image: url(../img/books/spine-00.png); width: 26px; height: 186px; }
+.book-s1 .book-spine { background-image: url(../img/books/spine-01.png); width: 28px; height: 185px; }
+.book-s2 .book-spine { background-image: url(../img/books/spine-02.png); width: 30px; height: 189px; }
+.book-s3 .book-spine { background-image: url(../img/books/spine-03.png); width: 28px; height: 189px; }
+.book-s4 .book-spine { background-image: url(../img/books/spine-04.png); width: 31px; height: 214px; }
+.book-s5 .book-spine { background-image: url(../img/books/spine-05.png); width: 31px; height: 217px; }
+.book-s6 .book-spine { background-image: url(../img/books/spine-06.png); width: 32px; height: 217px; }
+.book-s7 .book-spine { background-image: url(../img/books/spine-07.png); width: 32px; height: 217px; }
+.book-s8 .book-spine { background-image: url(../img/books/spine-08.png); width: 42px; height: 229px; }
+.book-s9 .book-spine { background-image: url(../img/books/spine-09.png); width: 40px; height: 221px; }
+.book-s10 .book-spine { background-image: url(../img/books/spine-10.png); width: 46px; height: 229px; }
+.book-s11 .book-spine { background-image: url(../img/books/spine-11.png); width: 40px; height: 236px; }
+
+.book-title {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  max-height: 100%;
+  padding: 10px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--spine-text);
+  /* усиленная тень: текст должен читаться и на светлых спрайтах */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 6px rgba(0, 0, 0, 0.35);
+}
+
+/* выдвижение с полки */
+.book:hover .book-spine,
+.book:focus-visible .book-spine,
+.book.is-open .book-spine {
+  transform: translateY(-12px);
+  box-shadow: 0 14px 14px -8px rgba(60, 40, 20, 0.4);
+}
+.book:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* --- карточка-анонс --- */
+
+.book-card {
+  position: absolute;
+  bottom: calc(100% - 26px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: #fffdf7;
+  border: 1px solid var(--wood-board);
+  box-shadow: 0 10px 24px rgba(60, 40, 20, 0.25);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.16s var(--ease), transform 0.16s var(--ease), visibility 0.16s;
+  z-index: 5;
+  text-align: left;
+  cursor: pointer;
+}
+.book:hover .book-card,
+.book:focus-visible .book-card,
+.book.is-open .book-card {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.book.is-open .book-card { pointer-events: auto; }
+
+/* прижим карточки к краю экрана */
+.book.edge-left .book-card { left: 0; transform: translateX(0) translateY(4px); }
+.book.edge-left:hover .book-card,
+.book.edge-left:focus-visible .book-card,
+.book.edge-left.is-open .book-card { transform: translateX(0) translateY(0); }
+.book.edge-right .book-card { left: auto; right: 0; transform: translateX(0) translateY(4px); }
+.book.edge-right:hover .book-card,
+.book.edge-right:focus-visible .book-card,
+.book.edge-right.is-open .book-card { transform: translateX(0) translateY(0); }
+
+.card-title { font-size: 15px; line-height: 1.35; color: var(--fg); }
+.card-date { font-size: 12px; color: var(--fg-muted); }
+.card-summary { font-size: 13px; line-height: 1.5; color: var(--fg-soft); }
+.card-tags { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.card-tag { font-size: 12px; color: var(--accent); }
+.card-hint { font-size: 12px; font-weight: 600; color: var(--accent-deep); }
+
+/* --- мобильная вёрстка --- */
+
+@media (max-width: 640px) {
+  .shelf-hero { margin-top: 24px; }
+  .shelf-hero h1 { font-size: 26px; }
+  .shelf-scene { margin-left: -6px; margin-right: -6px; }
+  .floor-lamp { display: none; } /* на узком экране торшер не помещается */
+  .bookcase { border-width: 12px; }
+  .bookcase-inner { padding: 0 10px; }
+  .book { margin-left: calc(var(--jit, 8px) / 2); } /* на узком экране джиттер вдвое меньше */
+  .book-title { font-size: 12px; }
+  .book-card { width: 220px; }
+}

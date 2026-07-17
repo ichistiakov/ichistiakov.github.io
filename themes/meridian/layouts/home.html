@@ -1,0 +1,110 @@
+{{ define "main" }}
+
+<section class="shelf-hero">
+  <h1>{{ site.Title }}</h1>
+  <p class="tagline">{{ site.Params.tagline }}</p>
+  <div class="hero-welcome">
+    {{ .Content }}
+  </div>
+</section>
+
+{{- $blog := site.GetPage "/blog" }}
+{{- with $blog }}
+{{- /* Книги расставлены по всему шкафу: полка = хэш названия серии/поста.
+       Порядок обхода — старые → новые, чтобы новая книга вставала правее
+       соседей по своей полке, не двигая уже стоящие. */}}
+{{- $posts := .RegularPagesRecursive.ByDate }}
+{{- $rows := int (default 5 site.Params.shelfRows) }}
+{{- $sc := newScratch }}
+{{- range $posts }}
+  {{- $key := default .Title .Params.series }}
+  {{- $sc.Add (printf "shelf%d" (mod (hash.FNV32a $key) $rows)) (slice .) }}
+{{- end }}
+<div class="shelf-scene">
+<section class="bookcase" aria-label="Книжная полка: каждая книга — статья блога">
+  <div class="bookcase-inner" id="bookcase">
+    {{- range $i := seq 0 (sub $rows 1) }}
+    <div class="shelf">
+      {{- $list := $sc.Get (printf "shelf%d" $i) }}
+      {{- $done := newScratch }}
+      {{- range $list }}
+        {{- with .Params.series }}
+          {{- /* Серия — собрание сочинений: все части вплотную, по номеру тома */}}
+          {{- if not ($done.Get .) }}
+            {{- $done.Set . true }}
+            {{- $parts := sort (where $list "Params.series" .) "Params.part" }}
+            {{- range $idx, $part := $parts }}
+              {{- partial "book.html" (dict "page" $part "flush" (gt $idx 0)) }}
+            {{- end }}
+          {{- end }}
+        {{- else }}
+          {{- partial "book.html" (dict "page" . "flush" false) }}
+        {{- end }}
+      {{- end }}
+      {{- /* атмосферный декор: лампа на верхней полке, растение в середине, кот на нижней */}}
+      {{- if eq $i 0 }}<span class="decor decor-lamp" aria-hidden="true"></span>{{ end }}
+      {{- if eq $i 2 }}<span class="decor decor-plant" aria-hidden="true"></span>{{ end }}
+      {{- if eq $i (sub $rows 1) }}<span class="decor decor-cat" aria-hidden="true"></span>{{ end }}
+    </div>
+    {{- end }}
+    {{- if not $posts }}
+    <p class="bookcase-empty">Полка пока пуста — первая книга появится с первым постом.</p>
+    {{- end }}
+  </div>
+</section>
+<div class="floor-lamp" aria-hidden="true"></div>
+</div>
+{{- end }}
+
+<script>
+(function () {
+  var books = document.querySelectorAll('.book');
+  if (!books.length) return;
+
+  var touchMode = window.matchMedia('(hover: none)').matches;
+
+  function closeAll(except) {
+    books.forEach(function (b) {
+      if (b !== except) b.classList.remove('is-open');
+    });
+  }
+
+  books.forEach(function (book) {
+    // Карточка не должна вылезать за край экрана: прижимаем её к нужной стороне
+    function placeCard() {
+      var card = book.querySelector('.book-card');
+      if (!card) return;
+      book.classList.remove('edge-left', 'edge-right');
+      var r = book.getBoundingClientRect();
+      var half = 140; /* половина ширины карточки + запас */
+      if (r.left + r.width / 2 < half) book.classList.add('edge-left');
+      else if (window.innerWidth - (r.left + r.width / 2) < half) book.classList.add('edge-right');
+    }
+
+    book.addEventListener('mouseenter', placeCard);
+    book.addEventListener('focus', placeCard);
+    placeCard(); /* сразу при загрузке: скрытые карточки у краёв не должны создавать горизонтальный скролл */
+    window.addEventListener('resize', placeCard);
+
+    if (touchMode) {
+      // Мобильный сценарий: первый тап — карточка, второй — переход
+      book.addEventListener('click', function (e) {
+        if (!book.classList.contains('is-open')) {
+          e.preventDefault();
+          closeAll(book);
+          placeCard();
+          book.classList.add('is-open');
+        }
+      });
+    }
+  });
+
+  if (touchMode) {
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.book')) closeAll(null);
+    });
+  }
+})();
+</script>
+
+{{ end }}

@@ -1,0 +1,47 @@
+{{- /* JSON-LD structured data: Person + WebSite на всех страницах, BlogPosting на постах.
+       Данные берутся из hugo.toml [params] и data/site.yaml (links) — ничего не захардкожено. */ -}}
+{{- $links := hugo.Data.site.links -}}
+{{- $sameAs := slice -}}
+{{- with $links.telegram }}{{ $sameAs = $sameAs | append . }}{{ end -}}
+{{- with $links.github }}{{ $sameAs = $sameAs | append . }}{{ end -}}
+{{- $person := dict
+      "@type" "Person"
+      "@id" (printf "%s#person" site.BaseURL)
+      "name" site.Params.author
+      "url" site.BaseURL
+      "description" site.Params.description
+-}}
+{{- with $sameAs }}{{ $person = merge $person (dict "sameAs" .) }}{{ end -}}
+<script type="application/ld+json">
+{{- dict
+  "@context" "https://schema.org"
+  "@graph" (slice
+    $person
+    (dict
+      "@type" "WebSite"
+      "@id" (printf "%s#website" site.BaseURL)
+      "url" site.BaseURL
+      "name" site.Title
+      "inLanguage" "ru-RU"
+      "publisher" (dict "@id" (printf "%s#person" site.BaseURL))
+    )
+  )
+  | jsonify (dict "indent" "  ") | safeJS -}}
+</script>
+{{- if and .IsPage (eq .Section "blog") }}
+<script type="application/ld+json">
+{{- dict
+  "@context" "https://schema.org"
+  "@type" "BlogPosting"
+  "headline" .Title
+  "description" (or .Description .Summary)
+  "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")
+  "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00")
+  "author" (dict "@type" "Person" "@id" (printf "%s#person" site.BaseURL) "name" site.Params.author)
+  "publisher" (dict "@id" (printf "%s#person" site.BaseURL))
+  "mainEntityOfPage" .Permalink
+  "inLanguage" "ru-RU"
+  "keywords" (delimit (.GetTerms "tags") ", ")
+  | jsonify (dict "indent" "  ") | safeJS -}}
+</script>
+{{- end }}

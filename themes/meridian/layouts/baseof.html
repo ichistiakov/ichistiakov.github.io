@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="{{ site.Language.Lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    /* тема до загрузки CSS, чтобы не мигало: URL-параметр → localStorage → системная */
+    (function () {
+      var t = new URLSearchParams(location.search).get('theme')
+        || localStorage.getItem('theme')
+        || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (t !== 'dark') t = 'light';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  {{- $title := "" -}}
+  {{- if .IsHome -}}
+    {{- $title = site.Title -}}
+  {{- else -}}
+    {{- $title = printf "%s — %s" .Title site.Title -}}
+  {{- end -}}
+  <title>{{ $title }}</title>
+  {{- $desc := or .Description .Params.description .Summary site.Params.description -}}
+  <meta name="description" content="{{ $desc }}">
+
+  <link rel="canonical" href="{{ .Permalink }}">
+
+  {{- $ogimg := printf "%simg/og-card.jpg" site.BaseURL -}}
+  {{- with .Resources.GetMatch "cover.*" }}{{ $ogimg = (.Fill "1200x630 Center").Permalink }}{{ end -}}
+  <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+  <meta property="og:title" content="{{ $title }}">
+  <meta property="og:description" content="{{ $desc }}">
+  <meta property="og:url" content="{{ .Permalink }}">
+  <meta property="og:site_name" content="{{ site.Title }}">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:image" content="{{ $ogimg }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ $title }}">
+  <meta name="twitter:description" content="{{ $desc }}">
+  <meta name="twitter:image" content="{{ $ogimg }}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap&subset=cyrillic,latin" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap&subset=cyrillic,latin" rel="stylesheet">
+
+  {{- $css := resources.Get "css/main.css" | minify | fingerprint -}}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  {{ partial "schema.html" . }}
+
+  {{ block "head" . }}{{ end }}
+  {{ with .OutputFormats.Get "rss" }}<link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ $title }}">{{ end }}
+</head>
+<body>
+  {{ partial "header.html" . }}
+  <main class="wrap">
+    {{ block "main" . }}{{ end }}
+  </main>
+  {{ partial "footer.html" . }}
+  {{- $carousel := resources.Get "js/carousel.js" | minify | fingerprint -}}
+  <script src="{{ $carousel.RelPermalink }}" integrity="{{ $carousel.Data.Integrity }}" defer></script>
+  {{- $lightbox := resources.Get "js/lightbox.js" | minify | fingerprint -}}
+  <script src="{{ $lightbox.RelPermalink }}" integrity="{{ $lightbox.Data.Integrity }}" defer></script>
+  <script>
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      function icon() { btn.textContent = document.documentElement.dataset.theme === 'dark' ? '☀' : '☾'; }
+      icon();
+      btn.addEventListener('click', function () {
+        var next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem('theme', next);
+        icon();
+      });
+    })();
+  </script>
+</body>
+</html>

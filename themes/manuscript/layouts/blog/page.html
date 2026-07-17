@@ -1,0 +1,50 @@
+{{ define "main" }}
+<article class="post">
+  <header class="post__head">
+    <h1 class="post__title">{{ .Title }}</h1>
+    <p class="post__meta">
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+      <span class="dot" aria-hidden="true">·</span>
+      <span>{{ site.Params.author }}</span>
+    </p>
+    {{- with .GetTerms "tags" }}
+      <p class="post__tags">
+        {{- range . }}<a href="{{ .RelPermalink }}">#{{ .Title | lower }}</a> {{ end }}
+      </p>
+    {{- end }}
+  </header>
+
+  {{- if not .Params.hideCover }}
+  {{- with .Resources.GetMatch "cover.*" }}
+  {{- $cover := .Resize "1600x" }}
+  <figure class="post__cover">
+    <img src="{{ $cover.RelPermalink }}" width="{{ $cover.Width }}" height="{{ $cover.Height }}" alt="{{ $.Title }}" loading="eager">
+  </figure>
+  {{- end }}
+  {{- end }}
+
+  <div class="prose post__body">
+    {{ .Content }}
+  </div>
+
+  {{- with .Params.discuss }}
+  <p class="post__source"><a class="arrow-link" href="{{ . }}" target="_blank" rel="noopener">Обсудить</a></p>
+  {{- end }}
+
+  {{- $related := site.RegularPages.Related . | first 3 }}
+  {{- with $related }}
+  <aside class="related">
+    <hr class="rule rule--ornament">
+    <h2 class="related__title">Читайте также</h2>
+    <ol class="post-index">
+      {{- range . }}
+      <li class="post-index__item">
+        <a class="post-index__title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        <time class="post-index__date" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+      </li>
+      {{- end }}
+    </ol>
+  </aside>
+  {{- end }}
+</article>
+{{ end }}

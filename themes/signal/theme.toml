@@ -1,0 +1,11 @@
+name = "signal"
+license = "MIT"
+licenselink = ""
+description = "Дерзкий минимализм на белом фоне с красным акцентом. Узкая колонка, IBM Plex Sans и Mono, толстые подчёркивания и звёздочки-маркеры."
+homepage = ""
+tags = ["blog", "minimal", "personal"]
+features = ["blog", "tags"]
+min_version = "0.146.0"
+
+[author]
+  name = "Дмитрий Соловьев"

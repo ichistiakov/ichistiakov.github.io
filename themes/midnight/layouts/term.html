@@ -1,0 +1,17 @@
+{{ define "main" }}
+<section class="list">
+  <header class="list__head">
+    <p class="mono-label">Тег</p>
+    <h1 class="list__title">#{{ .Title }}</h1>
+  </header>
+  <ul class="post-list">
+    {{ range .Pages.ByDate.Reverse }}
+      <li class="post-list__item">
+        <time class="post-list__date mono" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+        <h2 class="post-list__title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        {{ with .Params.summary }}<p class="post-list__summary">{{ . }}</p>{{ end }}
+      </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}

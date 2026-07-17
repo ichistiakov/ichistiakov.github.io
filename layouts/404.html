@@ -1,0 +1,11 @@
+{{ define "main" }}
+<article class="page-narrow article">
+  <header class="page-head">
+    <h1>Страница не найдена</h1>
+  </header>
+  <div class="prose">
+    <p>Кажется, такой страницы нет — возможно, ссылка устарела.</p>
+    <p><a href="{{ site.Home.RelPermalink }}">На главную</a> · <a href="{{ with site.GetPage "/blog" }}{{ .RelPermalink }}{{ end }}">В блог</a></p>
+  </div>
+</article>
+{{ end }}

@@ -1,0 +1,16 @@
+{{- /* Одиночное фото с ресайзом и подписью (в подписи допустим markdown — напр. ссылка).
+       {{< figimg src="img/x.jpg" caption="Подпись с [ссылкой](url)" class="is-half" >}} */ -}}
+{{- $src := .Get "src" -}}
+{{- $cap := .Get "caption" -}}
+{{- $cls := .Get "class" -}}
+{{- $img := .Page.Resources.GetMatch $src -}}
+<figure{{ with $cls }} class="{{ . }}"{{ end }}>
+{{- if $img }}
+  {{- $r := $img }}
+  {{- if gt $img.Width 1400 }}{{ $r = $img.Resize "1400x q82" }}{{ end }}
+  <img src="{{ $r.RelPermalink }}" width="{{ $r.Width }}" height="{{ $r.Height }}" alt="{{ $cap | plainify }}" loading="lazy">
+{{- else }}
+  <img src="{{ $src | safeURL }}" alt="{{ $cap | plainify }}" loading="lazy">
+{{- end }}
+{{- with $cap }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+</figure>

@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# AI search & retrieval — присутствие в ответах AI-поисковиков (разрешаем)
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+
+# AI training crawlers — по умолчанию разрешаем; закройте, если не хотите
+# отдавать контент на обучение моделей (Disallow: /)
+User-agent: GPTBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: {{ "sitemap.xml" | absURL }}

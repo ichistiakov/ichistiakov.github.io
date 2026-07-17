@@ -1,0 +1,13 @@
+{{ define "main" }}
+<div class="page-head">
+  <h1 class="page-head__title">{{ .Title }}</h1>
+  <p class="page-head__sub">Метки</p>
+</div>
+<section class="taxo prose">
+  <ul class="plain">
+    {{ range .Pages }}
+      <li><a href="{{ .RelPermalink }}">{{ .Title }}</a> <span class="muted">({{ len .Pages }})</span></li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}

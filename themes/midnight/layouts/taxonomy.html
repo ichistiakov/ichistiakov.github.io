@@ -1,0 +1,14 @@
+{{ define "main" }}
+<section class="list">
+  <header class="list__head">
+    <p class="mono-label">Таксономия</p>
+    <h1 class="list__title">{{ .Title }}</h1>
+  </header>
+  <ul class="term-list">
+    {{ range .Pages }}
+      <li><a class="arrow-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        <span class="mono muted">{{ len .Pages }}</span></li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}

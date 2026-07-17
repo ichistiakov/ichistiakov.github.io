@@ -1,0 +1,51 @@
+{{ define "main" }}
+<article class="page-narrow article post">
+  <header class="page-head post-head">
+    <h1>{{ .Title }}</h1>
+    <div class="post-meta">
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+      <span class="meta-sep">·</span>
+      <span class="post-author">{{ site.Params.author }}</span>
+    </div>
+    {{- with .GetTerms "tags" }}
+    <ul class="tag-list">
+      {{- range . }}
+      <li><a href="{{ .RelPermalink }}">#{{ .Title | lower }}</a></li>
+      {{- end }}
+    </ul>
+    {{- end }}
+  </header>
+
+  {{- if not .Params.hideCover }}
+  {{- with .Resources.GetMatch "cover.*" }}
+  {{- $cover := .Resize "1600x" }}
+  <figure class="post-cover">
+    <img src="{{ $cover.RelPermalink }}" width="{{ $cover.Width }}" height="{{ $cover.Height }}" alt="{{ $.Title }}" loading="eager">
+  </figure>
+  {{- end }}
+  {{- end }}
+
+  <div class="prose">
+    {{ .Content }}
+  </div>
+
+  {{- with .Params.discuss }}
+  <p class="post-source"><a href="{{ . }}" target="_blank" rel="noopener">Обсудить →</a></p>
+  {{- end }}
+
+  {{- $related := site.RegularPages.Related . | first 3 }}
+  {{- with $related }}
+  <aside class="related">
+    <h2 class="section-label">Читайте также</h2>
+    <ul class="post-list">
+      {{- range . }}
+      <li class="post-item">
+        <a class="post-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        <time class="post-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+      </li>
+      {{- end }}
+    </ul>
+  </aside>
+  {{- end }}
+</article>
+{{ end }}

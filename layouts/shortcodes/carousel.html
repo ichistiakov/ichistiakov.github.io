@@ -1,0 +1,14 @@
+{{- /* Карусель-листалка для поста.
+       Внутри — обычные markdown-картинки, каждая строка = слайд:
+
+       {{< carousel >}}
+       ![Подпись 1](img/a.jpg "Подпись 1")
+       ![Подпись 2](img/b.jpg "Подпись 2")
+       {{< /carousel >}}
+
+       JS (assets/js/carousel.js) превращает фигуры внутри в листалку:
+       стрелки по бокам, точки и подпись снизу, свайп и клавиши-стрелки.
+       Без JS видны все картинки подряд (graceful degradation). */ -}}
+<div class="carousel" role="group" aria-roledescription="карусель" aria-label="{{ .Get "label" | default "Галерея изображений" }}">
+{{ .Page.RenderString (dict "display" "block") .Inner }}
+</div>

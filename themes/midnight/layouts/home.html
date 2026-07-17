@@ -1,0 +1,73 @@
+{{ define "main" }}
+{{- $d := hugo.Data.site -}}
+{{- $l := $d.links -}}
+
+<article class="home">
+
+  {{/* 1. HERO */}}
+  <section class="hero">
+    <div class="hero__text">
+      <p class="mono-label">Личный сайт · {{ now.Format "2006" }}</p>
+      <h1 class="hero__title">{{ site.Title }}</h1>
+      <p class="hero__tagline">{{ site.Params.tagline }}</p>
+      <div class="hero__welcome prose">
+        {{ .Content }}
+      </div>
+    </div>
+  </section>
+
+  {{/* 2. СВЕЖИЕ ПОСТЫ */}}
+  {{- with site.GetPage "/blog" }}
+  <section class="block" id="blog">
+    <h2 class="block__title"><span class="mono-num">01</span>Свежие посты</h2>
+    <div class="block__body">
+      <ul class="post-feed">
+        {{- range first 5 .RegularPagesRecursive.ByDate.Reverse }}
+          <li class="post-feed__item">
+            <a class="post-feed__link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+            <time class="post-feed__date mono" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+          </li>
+        {{- end }}
+      </ul>
+      <p><a class="arrow-link" href="{{ .RelPermalink }}">Все посты</a></p>
+    </div>
+  </section>
+  {{- end }}
+
+  {{/* 3. ПРОЕКТЫ */}}
+  {{- with $d.projects }}
+  <section class="block" id="projects">
+    <h2 class="block__title"><span class="mono-num">02</span>Проекты</h2>
+    <div class="block__body">
+      <ul class="prog-list">
+        {{- range . }}
+          <li class="prog">
+            {{- if .url }}<a class="prog__name" href="{{ .url }}" target="_blank" rel="noopener">{{ .name }}</a>{{ else }}<span class="prog__name">{{ .name }}</span>{{ end }}
+            {{- with .note }}<span class="prog__note">{{ . }}</span>{{ end }}
+          </li>
+        {{- end }}
+      </ul>
+      {{- with site.GetPage "/proekty" }}
+      <p><a class="arrow-link" href="{{ .RelPermalink }}">Подробнее о проектах</a></p>
+      {{- end }}
+    </div>
+  </section>
+  {{- end }}
+
+  {{/* 4. КОНТАКТЫ */}}
+  {{- with $d.contacts_lead }}
+  <section class="block" id="contacts">
+    <h2 class="block__title"><span class="mono-num">03</span>Контакты</h2>
+    <div class="block__body">
+      <p class="lead">{{ . }}</p>
+      <p class="cta">
+        {{- with $l.telegram }}<a href="{{ . }}" target="_blank" rel="noopener">Телеграм</a>{{ end }}
+        {{- with $l.email }} <span class="dot" aria-hidden="true">·</span> <a href="mailto:{{ replace . "@" "&#64;" | safeHTML }}">почта</a>{{ end }}
+        {{- with $l.github }} <span class="dot" aria-hidden="true">·</span> <a href="{{ . }}" target="_blank" rel="noopener">гитхаб</a>{{ end }}
+      </p>
+    </div>
+  </section>
+  {{- end }}
+
+</article>
+{{ end }}

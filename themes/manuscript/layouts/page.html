@@ -1,0 +1,22 @@
+{{ define "main" }}
+<article class="page">
+  <header class="page__head">
+    <h1 class="page__title">{{ .Title }}</h1>
+    {{ with .Description }}<p class="page__sub">{{ . }}</p>{{ end }}
+  </header>
+
+  {{ if .Params.showPortrait }}
+    {{ with resources.Get site.Params.heroImage }}
+      {{ $img := .Fill "760x900 Center q88" }}
+      <figure class="page__portrait">
+        <img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" alt="{{ site.Params.author }}" loading="lazy">
+      </figure>
+    {{ end }}
+  {{ end }}
+
+  <div class="prose page__body">
+    {{ .Content }}
+    {{ partial "page-extras.html" . }}
+  </div>
+</article>
+{{ end }}

@@ -1,0 +1,8 @@
+# Сборка Hugo
+public/
+public-preview/
+resources/
+.hugo_build.lock
+
+# Системное
+.DS_Store

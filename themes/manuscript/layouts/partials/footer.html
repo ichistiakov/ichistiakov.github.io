@@ -1,0 +1,13 @@
+{{- $f := hugo.Data.site.footer -}}
+{{- $l := hugo.Data.site.links -}}
+<footer class="site-footer">
+  <hr class="rule rule--ornament">
+  <p class="site-footer__name">{{ or $f.name site.Title }}</p>
+  {{- with $f.about }}<p class="site-footer__about">{{ . }}</p>{{ end }}
+  <nav class="site-footer__links" aria-label="Подвал">
+    {{- with $l.telegram }}<a href="{{ . }}" target="_blank" rel="noopener">Телеграм</a>{{ end }}
+    {{- with $l.github }}<span class="dot" aria-hidden="true">·</span><a href="{{ . }}" target="_blank" rel="noopener">Гитхаб</a>{{ end }}
+    {{- with $l.email }}<span class="dot" aria-hidden="true">·</span><a href="mailto:{{ replace . "@" "&#64;" | safeHTML }}">{{ replace . "@" "&#64;" | safeHTML }}</a>{{ end }}
+    <span class="dot" aria-hidden="true">·</span><a href="{{ "index.xml" | absURL }}">RSS</a>
+  </nav>
+</footer>

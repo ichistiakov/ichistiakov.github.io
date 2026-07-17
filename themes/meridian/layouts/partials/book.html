@@ -1,0 +1,29 @@
+{{- /* Корешок книги на полке.
+     Вход: dict "page" <пост> "flush" <bool: часть серии, стоит вплотную к предыдущей>
+     Спрайт — детерминированно из хэша названия серии (или поста): у частей
+     серии одинаковый корешок. Горизонтальный отступ (джиттер) — из хэша
+     названия поста, чтобы книги стояли «там и сям», но стабильно между сборками. */}}
+{{- $p := .page }}
+{{- $key := default $p.Title $p.Params.series }}
+{{- $sprite := mod (hash.FNV32a $key) 12 }}
+{{- $jitter := add 8 (mod (hash.FNV32a $p.Title) 48) }}
+{{- if .flush }}{{ $jitter = 0 }}{{ end }}
+<a class="book book-s{{ $sprite }}" href="{{ $p.RelPermalink }}" style="--jit: {{ $jitter }}px">
+  <span class="book-spine">
+    {{- with $p.Params.part }}<span class="book-part">{{ . }}</span>{{ end }}
+    <span class="book-title">{{ $p.Title }}</span>
+  </span>
+  <span class="book-card">
+    <strong class="card-title">{{ $p.Title }}</strong>
+    <time class="card-date" datetime="{{ $p.Date.Format "2006-01-02" }}">{{ partial "date.html" $p.Date }}</time>
+    {{- with or $p.Params.summary ($p.Summary | plainify) }}
+    <span class="card-summary">{{ . }}</span>
+    {{- end }}
+    {{- with $p.GetTerms "tags" }}
+    <span class="card-tags">
+      {{- range . }}<span class="card-tag">#{{ .LinkTitle }}</span>{{ end -}}
+    </span>
+    {{- end }}
+    <span class="card-hint" aria-hidden="true">Читать →</span>
+  </span>
+</a>

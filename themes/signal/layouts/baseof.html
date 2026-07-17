@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="{{ or site.Language.Lang "ru" }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  {{- $title := "" -}}
+  {{- if .IsHome -}}
+    {{- $title = site.Title -}}
+  {{- else -}}
+    {{- $title = printf "%s — %s" .Title site.Title -}}
+  {{- end -}}
+  <title>{{ $title }}</title>
+
+  {{- $desc := or .Description .Params.description .Summary site.Params.description | plainify | chomp -}}
+  <meta name="description" content="{{ $desc }}">
+  <meta name="author" content="{{ site.Params.author }}">
+
+  <link rel="canonical" href="{{ .Permalink }}">
+
+  {{/* Open Graph / Twitter */}}
+  {{- $ogimg := printf "%simg/og-card.jpg" site.BaseURL -}}
+  {{- with .Resources.GetMatch "cover.*" }}{{ $ogimg = (.Fill "1200x630 Center").Permalink }}{{ end -}}
+  <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+  <meta property="og:title" content="{{ $title }}">
+  <meta property="og:description" content="{{ $desc }}">
+  <meta property="og:url" content="{{ .Permalink }}">
+  <meta property="og:site_name" content="{{ site.Title }}">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:image" content="{{ $ogimg }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ $title }}">
+  <meta name="twitter:description" content="{{ $desc }}">
+  <meta name="twitter:image" content="{{ $ogimg }}">
+
+  {{- $css := resources.Get "css/main.css" | minify | fingerprint -}}
+  <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  {{ partial "schema.html" . }}
+
+  {{ with .OutputFormats.Get "rss" -}}
+  <link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ $title }}">
+  {{- end }}
+</head>
+<body>
+  <div class="page">
+    {{ partial "header.html" . }}
+    <main class="main">
+      {{ block "main" . }}{{ end }}
+    </main>
+    {{ partial "footer.html" . }}
+  </div>
+  {{- $carousel := resources.Get "js/carousel.js" | minify | fingerprint -}}
+  <script src="{{ $carousel.RelPermalink }}" integrity="{{ $carousel.Data.Integrity }}" defer></script>
+  {{- $lightbox := resources.Get "js/lightbox.js" | minify | fingerprint -}}
+  <script src="{{ $lightbox.RelPermalink }}" integrity="{{ $lightbox.Data.Integrity }}" defer></script>
+</body>
+</html>

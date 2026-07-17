@@ -1,0 +1,14 @@
+<header class="masthead">
+  <a class="brand" href="{{ site.Home.RelPermalink }}">{{ site.Title }}<span class="brand-mark">*</span></a>
+  <nav class="menu" aria-label="Главное меню">
+    {{- $current := . -}}
+    {{- range site.Menus.main -}}
+      {{- $active := or ($current.IsMenuCurrent "main" .) ($current.HasMenuCurrent "main" .) -}}
+      {{- if and (not $active) $current.Section -}}
+        {{- if and .PageRef (in .PageRef (printf "/%s" $current.Section)) -}}{{- $active = true -}}{{- end -}}
+      {{- end -}}
+      {{- $href := .URL }}{{ with .Page }}{{ $href = .RelPermalink }}{{ end -}}
+      <a href="{{ $href }}" class="menu-item{{ if $active }} is-active{{ end }}"{{ if $active }} aria-current="page"{{ end }}>{{ .Name }}</a>
+    {{- end -}}
+  </nav>
+</header>

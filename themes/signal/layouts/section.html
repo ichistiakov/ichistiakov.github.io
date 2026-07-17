@@ -1,0 +1,19 @@
+{{ define "main" }}
+<article class="prose">
+  <h1 class="title">{{ .Title }}</h1>
+  {{- with .Description }}<p class="tagline">{{ . }}</p>{{ end }}
+
+  <ul class="post-list post-list--full">
+    {{- range .Pages.ByDate.Reverse }}
+    <li class="post-item post-item--full">
+      <h2 class="post-title">
+        <span class="starred">*</span>
+        <a class="big-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+      </h2>
+      <p class="post-meta"><span class="date">{{ partial "date.html" . }}</span></p>
+      {{- with .Summary }}<p class="post-summary">{{ . | plainify }}</p>{{ end }}
+    </li>
+    {{- end }}
+  </ul>
+</article>
+{{ end }}

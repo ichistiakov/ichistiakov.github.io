@@ -1,0 +1,32 @@
+{{ define "main" }}
+<article class="page-narrow">
+  <header class="page-head">
+    <h1>{{ .Title }}</h1>
+    {{- with .Content }}<div class="page-intro">{{ . }}</div>{{ end }}
+  </header>
+
+  <ul class="blog-list">
+    {{- range .RegularPagesRecursive.ByDate.Reverse }}
+    {{- $post := . }}
+    <li class="blog-entry{{ if .Resources.GetMatch "cover.*" }} blog-entry--thumb{{ end }}">
+      <div class="blog-entry-text">
+        <h2 class="blog-entry-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        <time class="blog-entry-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+        {{- with .Summary }}<p class="blog-entry-summary">{{ . }}</p>{{ end }}
+        {{- with $post.GetTerms "tags" }}
+        <ul class="tag-list">
+          {{- range . }}
+          <li><a href="{{ .RelPermalink }}">#{{ .Title | lower }}</a></li>
+          {{- end }}
+        </ul>
+        {{- end }}
+      </div>
+      {{- with .Resources.GetMatch "cover.*" }}
+      {{- $thumb := .Fill "480x360 Center" }}
+      <a class="blog-entry-thumb" href="{{ $post.RelPermalink }}" tabindex="-1" aria-hidden="true"><img src="{{ $thumb.RelPermalink }}" width="{{ $thumb.Width }}" height="{{ $thumb.Height }}" alt="" loading="lazy"></a>
+      {{- end }}
+    </li>
+    {{- end }}
+  </ul>
+</article>
+{{ end }}

@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────────────────────
+# Деплой статического сайта Hugo на свой VPS (nginx/apache/caddy) по rsync.
+#
+# Подготовка:
+#   1. Скопируйте файл:  cp deploy-vps.sh.example deploy.sh && chmod +x deploy.sh
+#   2. Заполните параметры ниже (SSH-хост, веб-корень, домен, тема).
+#   3. Настройте вход на сервер по SSH-ключу (алиас в ~/.ssh/config).
+#
+# ⚠️  rsync --delete: веб-корень на сервере становится точной копией public/.
+#
+# Использование:
+#   ./deploy.sh                 # DRY-RUN: показывает что изменится, НИЧЕГО не заливает
+#   ./deploy.sh --go            # реальный деплой (спросит подтверждение)
+# ─────────────────────────────────────────────────────────────────────────────
+set -euo pipefail
+cd "$(dirname "$0")"
+
+# ── параметры: замените на свои ──────────────────────────────────────────────
+SSH_HOST="my-server"                 # хост из ~/.ssh/config (вход по ключу)
+REMOTE_WEBROOT="/var/www/example.com"  # веб-корень на сервере (абсолютный путь)
+BASE_URL="https://example.com/"      # ваш домен (со слэшем на конце)
+THEME="meridian"                     # активная тема: meridian · manuscript · signal · midnight
+
+MODE="dry"
+for arg in "$@"; do
+  case "$arg" in
+    --go)  MODE="go" ;;
+    *)     echo "Неизвестный аргумент: $arg"; exit 1 ;;
+  esac
+done
+
+echo "Тема:        $THEME"
+echo "Цель:        $SSH_HOST:$REMOTE_WEBROOT/"
+echo "Режим:       $([ "$MODE" = go ] && echo 'РЕАЛЬНЫЙ ДЕПЛОЙ' || echo 'dry-run (без заливки)')"
+echo
+
+# ── 1. сборка ────────────────────────────────────────────────────────────────
+echo "→ Сборка Hugo…"
+hugo --theme "$THEME" --baseURL "$BASE_URL" --gc --minify --cleanDestinationDir -d public
+
+# ── 2. заливка ───────────────────────────────────────────────────────────────
+RSYNC_OPTS=(-az --delete --human-readable)
+if [ "$MODE" = "dry" ]; then
+  echo "→ DRY-RUN (rsync --dry-run). Реально ничего не меняется:"
+  rsync "${RSYNC_OPTS[@]}" --dry-run public/ "$SSH_HOST:$REMOTE_WEBROOT/"
+  echo
+  echo "Чтобы выкатить по-настоящему: ./deploy.sh --go"
+  exit 0
+fi
+
+echo
+read -r -p "Это ЗАМЕНИТ содержимое веб-корня на сервере. Продолжить? (введите yes): " ans
+[ "$ans" = "yes" ] || { echo "Отменено."; exit 1; }
+
+rsync "${RSYNC_OPTS[@]}" public/ "$SSH_HOST:$REMOTE_WEBROOT/"
+# при необходимости поправьте владельца под свой веб-сервер:
+ssh "$SSH_HOST" "chown -R www-data:www-data $REMOTE_WEBROOT" 2>/dev/null || true
+echo "✓ Готово. Проверьте: $BASE_URL"
