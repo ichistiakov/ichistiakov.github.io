@@ -736,7 +736,7 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
   pointer-events: none;
 }
 /* стеклянный клош с бабочкой (файл исторически называется decor-lamp) */
-.decor-lamp { width: 93px; height: 120px; background-image: url(../img/books/decor-lamp.png); }
+.decor-lamp { width: 93px; height: 116px; background-image: url(../img/books/decor-lamp.png); }
 /* кот лежит на доске, лапа и хвост свисают с её края:
    в спрайте линия тела на 31px выше нижнего края → опускаем на доску */
 .decor-cat {
@@ -752,10 +752,9 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
   max-width: var(--maxw-hero);
   margin: 0 auto 64px;
   background: var(--wood-bg);
-  /* пиксель-арт-рама: 9-slice, углы 16px из frame.png, рёбра тайлятся */
+  /* рама: 9-slice (гладкий арт @2x, slice 32 при границе 16px) */
   border: 16px solid transparent;
-  border-image: url(../img/books/frame.png) 16 repeat;
-  image-rendering: pixelated;
+  border-image: url(../img/books/frame.png) 32 repeat;
   box-shadow: 0 6px 18px rgba(60, 40, 20, 0.18);
 }
 
