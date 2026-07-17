@@ -1,5 +1,6 @@
 ---
 title: "Кто я"
+draft: true
 showPortrait: true
 ---
 

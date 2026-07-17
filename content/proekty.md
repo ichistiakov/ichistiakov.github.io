@@ -1,5 +1,6 @@
 ---
 title: "Проекты"
+draft: true
 showProjects: true
 ---
 

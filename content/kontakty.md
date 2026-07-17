@@ -1,5 +1,6 @@
 ---
 title: "Контакты"
+draft: true
 showContacts: true
 ---
 

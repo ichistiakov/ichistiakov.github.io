@@ -1,5 +1,6 @@
 ---
 title: "Now"
+draft: true
 ---
 
 Чем я занимаюсь сейчас — страница в духе <a href="https://nownownow.com/about" target="_blank" rel="noopener">nownownow.com</a>: короткий честный срез текущей жизни, обновляется раз в месяц-два.
