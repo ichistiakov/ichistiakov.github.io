@@ -726,13 +726,13 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
 }
 [data-theme="dark"] .floor-lamp::before { opacity: 1; }
 
-/* декор на полках: стоит справа, кликов не ловит */
+/* декор на полках: прижат к правому нижнему углу полки АБСОЛЮТНО —
+   не участвует в flex-переносе, иначе на узких экранах полка растёт
+   не кратно слоту и доски съезжают */
 .decor {
-  position: relative;
-  align-self: flex-end;
-  margin-left: auto;
-  margin-right: 14px;
-  margin-bottom: var(--board-h);
+  position: absolute;
+  right: 14px;
+  bottom: var(--board-h);
   background-repeat: no-repeat;
   background-size: 100% 100%;
   pointer-events: none;
@@ -745,7 +745,7 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
   width: 232px;
   height: 96px;
   background-image: url(../img/books/decor-cat.png);
-  margin-bottom: calc(var(--board-h) - 31px);
+  bottom: calc(var(--board-h) - 31px);
   z-index: 2;
 }
 .decor-plant { width: 244px; height: 180px; background-image: url(../img/books/decor-plant.png); }
@@ -776,6 +776,7 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
    Если книги перерастут ширину, ряд заворачивается, и полка становится
    вдвое выше — фоновые доски совпадают, т.к. высота кратна слоту */
 .shelf {
+  position: relative;   /* якорь для абсолютного декора */
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
