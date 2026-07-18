@@ -1,9 +1,10 @@
 ---
 title: "Vibelog #3 — разговор с Claude и сохранение контента"
-date: 2026-07-17T12:00:00+03:00
+date: 2026-04-09T12:00:00+03:00
 tags: [pkm, автоматизация, obsidian, claudecode, vibecoding, vibelog]
 series: "Vibelog"
 part: 3
+coverWide: true
 summary: "Кнопка «Разговор с Claude», быстрое сохранение книг и фильмов через бота и YAML-структура для обработки."
 ---
 

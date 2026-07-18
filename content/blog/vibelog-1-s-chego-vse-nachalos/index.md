@@ -1,9 +1,10 @@
 ---
 title: "Vibelog #1 — персональный ИИ-ассистент: с чего всё началось"
-date: 2026-07-17T10:00:00+03:00
+date: 2026-04-04T10:00:00+03:00
 tags: [pkm, secondbrain, obsidian, claudecode, автоматизация, vibelog]
 series: "Vibelog"
 part: 1
+coverWide: true
 summary: "Одна точка входа — Telegram-бот, одно хранилище — Obsidian. Как видео на YouTube запустило проект персонального ИИ-ассистента."
 ---
 

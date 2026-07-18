@@ -19,7 +19,7 @@
   {{- if not .Params.hideCover }}
   {{- with .Resources.GetMatch "cover.*" }}
   {{- $cover := .Resize "1600x" }}
-  <figure class="post-cover">
+  <figure class="post-cover{{ if $.Params.coverWide }} post-cover--wide{{ end }}">
     <img src="{{ $cover.RelPermalink }}" width="{{ $cover.Width }}" height="{{ $cover.Height }}" alt="{{ $.Title }}" loading="eager">
   </figure>
   {{- end }}

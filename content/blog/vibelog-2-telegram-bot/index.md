@@ -1,9 +1,10 @@
 ---
 title: "Vibelog #2 — telegram-бот как точка входа в хранилище"
-date: 2026-07-17T11:00:00+03:00
+date: 2026-04-05T11:00:00+03:00
 tags: [pkm, автоматизация, obsidian, claudecode, vibecoding, vibelog]
 series: "Vibelog"
 part: 2
+coverWide: true
 summary: "Сократить путь от мысли до хранилища: бот на aiogram, синхронизация по команде и бэкап в github."
 ---
 

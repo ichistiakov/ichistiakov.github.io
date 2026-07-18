@@ -361,6 +361,8 @@ a.prog-name:hover { color: var(--accent-deep); }
   margin: 0 0 32px;
 }
 .post-cover img { width: 50%; height: auto; display: block; }
+/* широкая обложка (скриншоты, пейзажи): coverWide: true во frontmatter */
+.post-cover--wide img { width: 100%; }
 /* картинки внутри текста поста (render-image hook) */
 .prose figure { margin: 28px 0; text-align: center; }
 .prose figure img { width: 100%; height: auto; display: block; margin: 0 auto; }
