@@ -750,6 +750,12 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
 }
 .decor-plant { width: 244px; height: 180px; background-image: url(../img/books/decor-plant.png); }
 
+/* на телефоне полка слишком узкая: книги доезжают до правого края и
+   наезжают на декор (он абсолютный и места не занимает) — прячем декор */
+@media (max-width: 640px) {
+  .decor { display: none; }
+}
+
 .bookcase {
   max-width: var(--maxw-hero);
   margin: 0 auto 64px;
