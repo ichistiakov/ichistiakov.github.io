@@ -11,15 +11,18 @@
 {{- if and (eq $m10 1) (ne $m100 11) }}{{ $word = "момент" }}
 {{- else if and (ge $m10 2) (le $m10 4) (or (lt $m100 12) (gt $m100 14)) }}{{ $word = "момента" }}{{ end }}
 {{- $art := os.FileExists "themes/meridian/static/img/books/album.png" }}
-{{- /* клик по альбому на полке открывает сразу последний момент (карта обещает «последний: …»);
-     обложка — на шаг назад, через уголок страницы */}}
-<a class="book book--album" href="{{ .RelPermalink }}#{{ $last.File.ContentBaseName }}" style="--jit: 28px" aria-label="{{ .Title }}: {{ $n }} {{ $word }}">
-  <span class="album-sprite{{ if $art }} has-art{{ end }}" aria-hidden="true"></span>
-  <span class="book-card">
+{{- /* две ссылки: сам альбом → обложка, карточка «Открыть последний» → последний момент.
+     Обёртка — не <a> (ссылки не вкладываются); класс .book оставляет карточку
+     и тач-логику полки (первый тап — карточка, второй — переход по тапнутой ссылке) */}}
+<div class="book book--album" style="--jit: 28px">
+  <a class="album-link" href="{{ .RelPermalink }}" aria-label="{{ .Title }}: {{ $n }} {{ $word }}">
+    <span class="album-sprite{{ if $art }} has-art{{ end }}" aria-hidden="true"></span>
+  </a>
+  <a class="book-card" href="{{ .RelPermalink }}#{{ $last.File.ContentBaseName }}" aria-label="Открыть последний момент: {{ $last.Title }}">
     <strong class="card-title">{{ .Title }}</strong>
     <span class="card-date">{{ $n }} {{ $word }}</span>
     <span class="card-summary">последний: {{ $last.Title }}</span>
     <span class="card-hint" aria-hidden="true">Открыть последний →</span>
-  </span>
-</a>
+  </a>
+</div>
 {{- end }}

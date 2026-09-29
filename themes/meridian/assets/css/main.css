@@ -1016,6 +1016,16 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
   margin-bottom: -10px;
   background: url(../img/books/album.png) no-repeat center bottom / 100% 100%;
 }
+/* у альбома карточка — своя ссылка (на последний момент): кликабельна и при наведении,
+   видна и при фокусе с клавиатуры на любой из двух ссылок */
+.album-link { display: block; text-decoration: none; }
+.book--album .book-card { text-decoration: none; }
+.book--album:hover .book-card,
+.book--album:focus-within .book-card { opacity: 1; visibility: visible; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+.book--album.edge-right:hover .book-card,
+.book--album.edge-right:focus-within .book-card { transform: translateX(0) translateY(0); }
+.book--album .book-card:hover .card-hint { text-decoration: underline; }
+.book--album:focus-within .album-sprite,
 .book--album:hover .album-sprite,
 .book--album:focus-visible .album-sprite,
 .book--album.is-open .album-sprite { transform: translateY(-6px); }

@@ -86,7 +86,7 @@
     }
 
     book.addEventListener('mouseenter', placeCard);
-    book.addEventListener('focus', placeCard);
+    book.addEventListener('focusin', placeCard); // focusin всплывает: у альбома фокус на ссылке внутри обёртки
     placeCard(); /* сразу при загрузке: скрытые карточки у краёв не должны создавать горизонтальный скролл */
     window.addEventListener('resize', placeCard);
 
