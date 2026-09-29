@@ -1019,12 +1019,12 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
 .book--album:hover .album-sprite,
 .book--album:focus-visible .album-sprite,
 .book--album.is-open .album-sprite { transform: translateY(-6px); }
-/* на телефоне декор скрыт, но альбом — навигация: встаёт в поток после книг, меньше */
+/* на телефоне декор скрыт, но альбом — навигация: встаёт в поток после книг.
+   Книги на телефоне не уменьшаются — альбом тоже в полном размере */
 @media (max-width: 640px) {
   /* margin-left: auto — к правой стенке, как на десктопе, но в потоке: книги не перекроет */
-  .book--album { position: relative; right: auto; bottom: auto; margin-left: auto; margin-right: -13px; }
-  .album-sprite { width: 63px; height: 140px; }
-  .album-sprite.has-art { width: 96px; height: 130px; margin-bottom: -7px; }
+  .book--album { position: relative; right: auto; bottom: auto; margin-left: auto; margin-right: -21px; flex-shrink: 0; }
+  .album-sprite:not(.has-art) { width: 63px; height: 140px; }
   .album-sprite:not(.has-art)::before { width: 30px; height: 132px; }
   .album-sprite:not(.has-art)::after { left: 21px; bottom: 50px; width: 21px; height: 16px; box-shadow: inset 0 0 0 6px #c9a88a, 0 1px 2px rgba(60, 40, 20, 0.3); }
 }
@@ -1471,13 +1471,20 @@ a.album-cover-board:focus-visible { outline: 2px solid var(--accent); outline-of
 /* узкий десктоп: записке у обложки не хватает места справа — под альбом */
 @media (max-width: 1100px) {
   .album.at-cover .album-hint { top: auto; bottom: -64px; left: 50%; transform: translateX(-50%) rotate(-3deg); }
+  .album.at-cover .album-hint .hint-text--cover { white-space: nowrap; text-align: center; }
   .album.at-cover .hint-arrow { display: none; }
 }
 
 /* телефон: одна страница — фото, марка приклеена к его углу, ниже текст */
 @media (max-width: 799px) {
   .album { margin-top: 20px; }
-  .album-moment { grid-template-columns: 1fr; min-height: 0; background: var(--paper); }
+  /* одна страница — корешка посередине нет (и в тёмной теме тоже) */
+  .album-moment,
+  [data-theme="dark"] .album-moment {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    background: radial-gradient(ellipse at 50% 30%, rgba(255, 240, 210, 0.14), transparent 75%), var(--paper);
+  }
   .album.is-js .album-moment.is-current { display: block; }
   .album-page { padding: 22px 18px; }
   .album-page--left { padding-bottom: 0; }
@@ -1493,10 +1500,11 @@ a.album-cover-board:focus-visible { outline: 2px solid var(--accent); outline-of
   .album-cover-board { min-height: 440px; padding: 96px 24px 32px; }
   .album-cover-title { font-size: 44px; }
   .cover-photo-tab { right: -30px; width: 74px; height: 58px; }
-  .cover-photo-tab-label { left: auto; right: 0; top: calc(100% + 8px); transform: rotate(-4deg); }
+  /* подпись у фото упиралась в край экрана — на телефоне её роль берёт записка */
+  .cover-photo-tab-label { display: none; }
   .album-ribbon { left: 62%; }
   .album-ribbon-label { left: calc(62% + 26px); }
-  .album-hint { right: auto; left: 12px; top: calc(100% + 16px); }
+  .album-hint { right: auto; left: 12px; top: calc(100% + 16px); color: var(--fg); font-size: 25px; }
   .album-hint .hint-text { text-align: left; }
   .hint-arrow { display: none; }
 }

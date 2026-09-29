@@ -11,13 +11,15 @@
 {{- if and (eq $m10 1) (ne $m100 11) }}{{ $word = "момент" }}
 {{- else if and (ge $m10 2) (le $m10 4) (or (lt $m100 12) (gt $m100 14)) }}{{ $word = "момента" }}{{ end }}
 {{- $art := os.FileExists "themes/meridian/static/img/books/album.png" }}
-<a class="book book--album" href="{{ .RelPermalink }}" style="--jit: 28px" aria-label="{{ .Title }}: {{ $n }} {{ $word }}">
+{{- /* клик по альбому на полке открывает сразу последний момент (карта обещает «последний: …»);
+     обложка — на шаг назад, через уголок страницы */}}
+<a class="book book--album" href="{{ .RelPermalink }}#{{ $last.File.ContentBaseName }}" style="--jit: 28px" aria-label="{{ .Title }}: {{ $n }} {{ $word }}">
   <span class="album-sprite{{ if $art }} has-art{{ end }}" aria-hidden="true"></span>
   <span class="book-card">
     <strong class="card-title">{{ .Title }}</strong>
     <span class="card-date">{{ $n }} {{ $word }}</span>
     <span class="card-summary">последний: {{ $last.Title }}</span>
-    <span class="card-hint" aria-hidden="true">Открыть →</span>
+    <span class="card-hint" aria-hidden="true">Открыть последний →</span>
   </span>
 </a>
 {{- end }}
