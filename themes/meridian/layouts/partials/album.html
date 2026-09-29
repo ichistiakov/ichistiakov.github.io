@@ -1,0 +1,23 @@
+{{- /* Фотоальбом, лежащий на полке. Вход: секция альбома.
+     Использует классы .book/.book-card — hover-карта и тач-логика
+     (первый тап — карта, второй — переход) те же, что у книг.
+     Арт: themes/meridian/static/img/books/album.png; нет файла — CSS-обложка. */}}
+{{- $moments := partialCached "album-moments.html" . }}
+{{- $n := len $moments }}
+{{- if $n }}
+{{- $last := index $moments (sub $n 1) }}
+{{- $m10 := mod $n 10 }}{{ $m100 := mod $n 100 }}
+{{- $word := "моментов" }}
+{{- if and (eq $m10 1) (ne $m100 11) }}{{ $word = "момент" }}
+{{- else if and (ge $m10 2) (le $m10 4) (or (lt $m100 12) (gt $m100 14)) }}{{ $word = "момента" }}{{ end }}
+{{- $art := os.FileExists "themes/meridian/static/img/books/album.png" }}
+<a class="book book--album" href="{{ .RelPermalink }}" style="--jit: 28px" aria-label="{{ .Title }}: {{ $n }} {{ $word }}">
+  <span class="album-sprite{{ if $art }} has-art{{ end }}" aria-hidden="true"></span>
+  <span class="book-card">
+    <strong class="card-title">{{ .Title }}</strong>
+    <span class="card-date">{{ $n }} {{ $word }}</span>
+    <span class="card-summary">последний: {{ $last.Title }}</span>
+    <span class="card-hint" aria-hidden="true">Открыть →</span>
+  </span>
+</a>
+{{- end }}

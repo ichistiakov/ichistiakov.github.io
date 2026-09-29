@@ -15,6 +15,8 @@
        соседей по своей полке, не двигая уже стоящие. */}}
 {{- $posts := .RegularPagesRecursive.ByDate }}
 {{- $rows := int (default 5 site.Params.shelfRows) }}
+{{- $albumShelf := sub $rows 2 }}
+{{- if isset site.Params "albumshelf" }}{{ $albumShelf = int site.Params.albumShelf }}{{ end }}
 {{- $sc := newScratch }}
 {{- range $posts }}
   {{- $key := default .Title .Params.series }}
@@ -41,6 +43,8 @@
           {{- partial "book.html" (dict "page" . "flush" false) }}
         {{- end }}
       {{- end }}
+      {{- /* фотоальбом лежит на своей полке правее книг (albumShelf в hugo.toml) */}}
+      {{- if eq $i $albumShelf }}{{ with site.GetPage "/albom" }}{{ partial "album.html" . }}{{ end }}{{ end }}
       {{- /* атмосферный декор: лампа на верхней полке, растение в середине, кот на нижней */}}
       {{- if eq $i 0 }}<span class="decor decor-lamp" aria-hidden="true"></span>{{ end }}
       {{- if eq $i 2 }}<span class="decor decor-plant" aria-hidden="true"></span>{{ end }}

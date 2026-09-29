@@ -957,3 +957,546 @@ a.extras-name:hover { color: var(--accent-deep); text-decoration: underline; }
   .book-title { font-size: 12px; }
   .book-card { width: 220px; }
 }
+
+/* ============================================================
+   Фотоальбом: предмет на полке (.book--album) и страница /albom/
+   ============================================================ */
+
+/* --- альбом на полке: стоит у правой стенки шкафа, прислонён под наклоном.
+   Как декор — абсолютный, в flex-потоке книг не участвует; карта и тач — от .book --- */
+.book--album {
+  position: absolute;
+  right: -21px;   /* верхний угол арта касается правой стенки шкафа */
+  bottom: 0;
+  margin-left: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.album-sprite {
+  position: relative;
+  display: block;
+  width: 150px;
+  height: 203px;
+  transition: transform 0.18s var(--ease), filter 0.18s var(--ease);
+}
+/* CSS-фолбэк, пока нет арта: блок страниц между сливовыми крышками,
+   нижний левый угол на доске, верх прислонён к стенке справа (~15°) */
+.album-sprite:not(.has-art)::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  bottom: 0;
+  width: 42px;
+  height: 188px;
+  transform-origin: left bottom;
+  transform: rotate(15deg);
+  border-radius: 3px;
+  background:
+    linear-gradient(90deg, #8c5a72 0 6px, transparent 6px calc(100% - 6px), #8c5a72 calc(100% - 6px)),
+    repeating-linear-gradient(180deg, #f8f1e4 0 3px, #e6dac3 3px 4px);
+  box-shadow: 0 3px 4px rgba(60, 40, 20, 0.25);
+}
+/* фото, торчащие из страниц (фолбэк) */
+.album-sprite:not(.has-art)::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  bottom: 70px;
+  width: 30px;
+  height: 22px;
+  transform-origin: left bottom;
+  transform: rotate(8deg);
+  background: #fffdf6;
+  border: 3px solid #fffdf6;
+  box-shadow: inset 0 0 0 10px #c9a88a, 0 1px 2px rgba(60, 40, 20, 0.3);
+}
+.album-sprite.has-art {
+  /* арт: static/img/books/album.png, запечён ×2 (300×406). Нижний угол
+     переплёта — на 5% выше края спрайта: ниже только свисающая ленточка */
+  margin-bottom: -10px;
+  background: url(../img/books/album.png) no-repeat center bottom / 100% 100%;
+}
+.book--album:hover .album-sprite,
+.book--album:focus-visible .album-sprite,
+.book--album.is-open .album-sprite { transform: translateY(-6px); }
+/* на телефоне декор скрыт, но альбом — навигация: встаёт в поток после книг, меньше */
+@media (max-width: 640px) {
+  /* margin-left: auto — к правой стенке, как на десктопе, но в потоке: книги не перекроет */
+  .book--album { position: relative; right: auto; bottom: auto; margin-left: auto; margin-right: -13px; }
+  .album-sprite { width: 63px; height: 140px; }
+  .album-sprite.has-art { width: 96px; height: 130px; margin-bottom: -7px; }
+  .album-sprite:not(.has-art)::before { width: 30px; height: 132px; }
+  .album-sprite:not(.has-art)::after { left: 21px; bottom: 50px; width: 21px; height: 16px; box-shadow: inset 0 0 0 6px #c9a88a, 0 1px 2px rgba(60, 40, 20, 0.3); }
+}
+
+/* --- страница альбома --- */
+.album {
+  --paper: #fbf5e8;
+  --paper-edge: #eadfc8;
+  --paper-ink: #3b2f24;
+  --paper-ink-soft: #7a6a58;
+  --cloth: #8c5a72;
+  --cloth-deep: #6f4459;
+  --stamp-paper: #fffdf6;
+  --font-hand: "Caveat", "Segoe Print", cursive;
+  max-width: var(--maxw-hero);
+  margin: 32px auto 64px;
+}
+[data-theme="dark"] .album {
+  /* ночью альбом остаётся бумажным — приглушённый пергамент «под лампой»
+     и тёмные чернила: тёмная бумага со светлым текстом читалась мутно */
+  --paper: #cbbd9f;
+  --paper-edge: #9d8e72;
+  --paper-ink: #2a2118;
+  --paper-ink-soft: #5a4c3b;
+  --cloth: #6e4459;
+  --cloth-deep: #553344;
+  --stamp-paper: #f1e8d4;
+}
+
+.album-book { position: relative; perspective: 1600px; }
+
+/* без JS листы идут лентой; с JS — только текущий */
+/* прыжок по якорю #slug: лист не уезжает под липкую шапку */
+.album-leaf { scroll-margin-top: 88px; }
+.album-leaf + .album-leaf { margin-top: 40px; }
+.album.is-js .album-leaf { display: none; margin-top: 0; }
+.album.is-js .album-leaf.is-current { display: grid; }
+.album.is-js .album-cover.is-current { display: flex; }
+
+/* разворот: две страницы бумаги с корешком-тенью по центру */
+.album-moment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 560px;
+  background:
+    linear-gradient(90deg, transparent 47%, rgba(60, 40, 20, 0.16) 49.6%, rgba(60, 40, 20, 0.28) 50%, rgba(60, 40, 20, 0.16) 50.4%, transparent 53%),
+    radial-gradient(circle at 20% 30%, rgba(120, 90, 50, 0.05), transparent 60%),
+    var(--paper);
+  border: 1px solid var(--paper-edge);
+  border-radius: 4px;
+  box-shadow: 0 1px 0 var(--paper-edge), 0 3px 0 var(--paper-edge), 0 14px 30px rgba(60, 40, 20, 0.22);
+  color: var(--paper-ink);
+}
+.album-page { padding: 44px 48px; min-width: 0; }
+/* фото — вверху страницы, на уровне марки: при длинном тексте не «тонет» по центру */
+.album-page--left { display: flex; align-items: flex-start; justify-content: center; padding-top: 72px; }
+
+/* фото в паспарту с уголками-держателями */
+.album-photo-wrap.prose { font-size: inherit; line-height: inherit; color: inherit; width: 100%; }
+.album-photo-wrap.prose figure.album-photo {
+  position: relative;
+  margin: 0 auto;
+  padding: 12px;
+  background: #fffdf8;
+  box-shadow: 0 2px 6px rgba(60, 40, 20, 0.22);
+  transform: rotate(var(--tilt, 0deg));
+  max-width: 100%;
+  width: fit-content;
+}
+.album-photo-wrap.prose figure.album-photo img {
+  margin: 0;
+  max-height: 460px;
+  width: auto;
+  max-width: 100%;
+}
+.photo-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  background: #3b2f24;
+  opacity: 0.85;
+  z-index: 1;
+}
+.photo-corner--tl { top: -4px; left: -4px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+.photo-corner--tr { top: -4px; right: -4px; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.photo-corner--bl { bottom: -4px; left: -4px; clip-path: polygon(0 0, 0 100%, 100% 100%); }
+.photo-corner--br { bottom: -4px; right: -4px; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+
+/* почтовая марка: зубцы — маска из кругов по сетке шага --p,
+   внутренняя область (content-box) залита целиком, поэтому «дырки»
+   остаются только по краю. Размеры кратны --p, чтобы зубцы сходились в углах */
+.stamp-wrap {
+  width: fit-content;
+  margin: 0 0 22px auto;
+  transform: rotate(var(--stamp-tilt, 4deg));
+  filter: drop-shadow(0 3px 4px rgba(40, 25, 10, 0.28));
+}
+.stamp {
+  --p: 14px;
+  --r: 4px;
+  width: calc(var(--p) * 12);
+  height: calc(var(--p) * 14);
+  box-sizing: border-box;
+  padding: 9px;
+  background: var(--stamp-paper);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    radial-gradient(circle, #0000 var(--r), #000 calc(var(--r) + 0.5px)) calc(var(--p) / -2) calc(var(--p) / -2) / var(--p) var(--p);
+          mask:
+    linear-gradient(#000 0 0) content-box,
+    radial-gradient(circle, #0000 var(--r), #000 calc(var(--r) + 0.5px)) calc(var(--p) / -2) calc(var(--p) / -2) / var(--p) var(--p);
+}
+.stamp-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  margin: 0;
+  padding: 4px 4px 0;
+  box-sizing: border-box;
+}
+.stamp-img--empty {
+  background:
+    repeating-linear-gradient(45deg, rgba(140, 90, 114, 0.10) 0 6px, transparent 6px 12px),
+    #f3ead8;
+  background-clip: content-box;
+}
+.stamp-denom {
+  margin-top: auto;
+  padding: 0 4px 2px;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: #8c5a72;
+  text-align: right;
+}
+
+.album-title {
+  margin: 0 0 4px;
+  font-family: var(--font-hand);
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 1.1;
+  color: var(--paper-ink);
+}
+.album-date { display: block; margin-bottom: 18px; font-size: 14px; color: var(--paper-ink-soft); }
+.album-text { font-family: var(--font-serif); font-size: 18px; line-height: 1.6; }
+.album-text p { margin: 0 0 0.9em; }
+.album-text a { color: inherit; }
+
+/* номер страницы — как в печатной книге */
+.album-page--right { position: relative; padding-bottom: 72px; }
+.album-pageno {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 26px;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: var(--paper-ink-soft);
+  font-variant-numeric: oldstyle-nums;
+}
+
+/* --- обложка: закрытый альбом, кликабелен целиком --- */
+.album-cover { display: flex; flex-direction: column; align-items: center; }
+.album-cover-wrap { position: relative; width: min(480px, calc(100% - 56px)); }
+.album-cover-board {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 560px;
+  padding: 120px 40px 48px;
+  text-decoration: none;
+  color: #f6ecd8;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 5px),
+    var(--cloth);
+  border-radius: 4px 10px 10px 4px;
+  /* корешок слева + тиснёная рамка по периметру */
+  box-shadow:
+    inset 14px 0 0 var(--cloth-deep), inset 16px 0 6px rgba(0, 0, 0, 0.2),
+    0 14px 30px rgba(60, 40, 20, 0.3);
+  outline: 1px solid rgba(227, 191, 120, 0.35);
+  outline-offset: -26px;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+a.album-cover-board { cursor: pointer; }
+a.album-cover-board:hover { transform: translateY(-3px) rotate(-0.4deg); }
+a.album-cover-board:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.album-cover-title {
+  margin: 0;
+  padding: 10px 28px;
+  border: 2px solid rgba(201, 151, 63, 0.75);
+  font-family: var(--font-hand);
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+  color: #e3bf78;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 -1px 0 rgba(255, 255, 255, 0.12); /* тиснение */
+}
+/* арт обложки: static/img/books/album-cover.png (портрет ~4:5, прозрачный фон).
+   Название вписано тиснением в пустую табличку на арте — её место и размер
+   подгоняются переменными */
+.album-cover-board.has-art {
+  --label-top: 20.5%;   /* верх таблички от верха арта */
+  --label-left: 33.2%;  /* левый край таблички (она на арте не по центру) */
+  --label-w: 39.5%;     /* ширина таблички от ширины арта */
+  --label-h: 18.6%;     /* высота таблички от высоты арта */
+  min-height: 0;
+  aspect-ratio: 840 / 1092;
+  padding: 0;
+  background: url(../img/books/album-cover.png) no-repeat center / contain;
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  filter: drop-shadow(0 14px 18px rgba(60, 40, 20, 0.3));
+}
+.album-cover-board.has-art .album-cover-title {
+  position: absolute;
+  top: var(--label-top);
+  left: var(--label-left);
+  width: var(--label-w);
+  height: var(--label-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0;
+  border: 0;
+  font-size: clamp(30px, 9vw, 50px);
+  color: #8c5a72;
+  /* вдавленная надпись на бумаге: светлый блик снизу, тень сверху */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 -1px 0 rgba(60, 30, 40, 0.35);
+}
+/* вступление — мелко под альбомом, не на обложке */
+.album-cover-intro {
+  max-width: 440px;
+  margin: 26px auto 0;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--fg-soft);
+}
+.album-cover-intro p { margin: 0 0 0.6em; }
+
+/* уголок старого фото торчит из-под правого края обложки: потянуть — наугад */
+.cover-photo-tab {
+  position: absolute;
+  z-index: 0;
+  top: 34%;
+  right: -38px;
+  width: 92px;
+  height: 70px;
+  padding: 0;
+  border: 5px solid #fffdf6;
+  border-bottom-width: 12px;
+  background:
+    radial-gradient(circle at 70% 35%, rgba(255, 240, 200, 0.55), transparent 45%),
+    linear-gradient(160deg, #b99a78, #8a6f55 60%, #6f5a47);
+  box-shadow: 0 2px 5px rgba(60, 40, 20, 0.35);
+  transform: rotate(7deg);
+  cursor: pointer;
+  transition: transform 0.22s var(--ease);
+}
+.cover-photo-tab:hover,
+.cover-photo-tab:focus-visible { transform: translateX(12px) rotate(9deg); }
+.cover-photo-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.album:not(.is-js) .cover-photo-tab { display: none; }
+
+/* рукописные подписи (ленточка, фото из-под обложки) */
+.cover-photo-tab-label,
+.album-ribbon-label {
+  position: absolute;
+  white-space: nowrap;
+  font-family: var(--font-hand);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--fg-soft);
+  opacity: 0;
+  transition: opacity 0.18s var(--ease);
+  pointer-events: none;
+}
+.cover-photo-tab-label { left: calc(100% + 10px); top: 50%; transform: translateY(-50%) rotate(-7deg); }
+.cover-photo-tab:hover .cover-photo-tab-label,
+.cover-photo-tab:focus-visible .cover-photo-tab-label { opacity: 1; }
+
+/* --- загнутые уголки страниц: листать вперёд/назад --- */
+.album-moment { position: relative; }
+/* тёмная тема: та же бумага, но приглушённая; желоб глубже, края страниц
+   уходят в тень (виньетка), торец блока — тёмными слоями без светлой каймы */
+[data-theme="dark"] .album-moment {
+  background:
+    linear-gradient(90deg, transparent 46%, rgba(40, 25, 10, 0.25) 49.3%, rgba(30, 18, 8, 0.45) 50%, rgba(40, 25, 10, 0.25) 50.7%, transparent 54%),
+    linear-gradient(90deg, rgba(40, 25, 10, 0.18), transparent 14%, transparent 86%, rgba(40, 25, 10, 0.18)),
+    radial-gradient(ellipse at 50% 35%, rgba(255, 240, 210, 0.18), transparent 75%),
+    var(--paper);
+  border-color: rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 1px 0 #9d8e72, 0 2px 0 #7e7058, 0 3px 0 #8f8067, 0 4px 0 #6b5e49,
+    0 18px 36px rgba(0, 0, 0, 0.6);
+}
+.page-corner {
+  --fold: 22px;
+  position: absolute;
+  bottom: 0;
+  z-index: 2;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(-1px -1px 2px rgba(60, 40, 20, 0.22));
+}
+.page-corner--next { right: 0; }
+.page-corner--prev { left: 0; filter: drop-shadow(1px -1px 2px rgba(60, 40, 20, 0.22)); }
+.page-corner::before,
+.page-corner::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: var(--fold);
+  height: var(--fold);
+  transition: width 0.2s var(--ease), height 0.2s var(--ease);
+}
+/* под загибом — край следующей страницы; сам загиб — изнанка листа */
+.page-corner--next::before { right: 0; background: var(--paper-edge); clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+.page-corner--next::after {
+  right: 0;
+  background: linear-gradient(135deg, var(--flap-a) 30%, var(--flap-b));
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.page-corner--prev::before { left: 0; background: var(--paper-edge); clip-path: polygon(0 0, 100% 100%, 0 100%); }
+.page-corner--prev::after {
+  left: 0;
+  background: linear-gradient(225deg, var(--flap-a) 30%, var(--flap-b));
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+.page-corner:hover, .page-corner:focus-visible { --fold: 46px; }
+.page-corner:focus-visible { outline: 2px solid var(--accent); outline-offset: -4px; }
+.album:not(.is-js) .page-corner { display: none; }
+.album { --flap-a: #fffaf0; --flap-b: #e6d8bd; }
+[data-theme="dark"] .album { --flap-a: #d8cbb0; --flap-b: #a6977b; }
+
+/* --- ленточка-закладка: открыть наугад --- */
+.album { margin-bottom: 110px; }
+.album-ribbon {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% - 12px);
+  left: 57%;
+  width: 18px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  background: linear-gradient(90deg, #b8862f, #c9973f 40%, #d8ab55 60%, #b8862f);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%);
+  cursor: pointer;
+  transform-origin: top center;
+  transition: height 0.2s var(--ease), transform 0.2s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.album-ribbon:hover, .album-ribbon:focus-visible { height: 74px; transform: rotate(-3deg); }
+.album-ribbon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* подпись — соседний элемент: clip-path ленточки обрезал бы её */
+.album-ribbon[hidden], .album-ribbon[hidden] + .album-ribbon-label,
+.album.at-cover .album-ribbon, .album.at-cover .album-ribbon-label,
+.album:not(.is-js) .album-ribbon, .album:not(.is-js) .album-ribbon-label { display: none; }
+.album-ribbon-label { left: calc(57% + 28px); top: calc(100% + 18px); transform: rotate(-4deg); }
+.album-ribbon:hover + .album-ribbon-label,
+.album-ribbon:focus-visible + .album-ribbon-label { opacity: 1; }
+/* на тач-экранах наведения нет — подписи видны всегда, но тихо */
+@media (hover: none) {
+  .album-ribbon-label, .cover-photo-tab-label { opacity: 0.75; }
+}
+
+/* --- подсказка при первом визите: записка карандашом со стрелкой к уголку --- */
+.album-hint {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% + 10px);
+  right: 34px;
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-family: var(--font-hand);
+  font-size: 23px;
+  line-height: 1.1;
+  color: var(--fg-soft);
+  transform: rotate(-3deg);
+  pointer-events: none;
+  animation: album-hint-in 0.5s var(--ease) 0.6s both;
+  transition: opacity 0.5s var(--ease);
+}
+.album-hint[hidden] { display: none; }
+.album-hint.is-out { opacity: 0; }
+.hint-text { text-align: right; }
+.hint-text--touch { display: none; }
+@media (hover: none) {
+  .hint-text--desk { display: none; }
+  .hint-text--touch { display: inline; }
+}
+.hint-arrow { flex: 0 0 auto; width: 52px; height: 36px; margin-top: -26px; }
+/* на обложке: записка справа от альбома, стрелка влево — к обложке */
+.album.at-cover .album-hint {
+  top: 38%;
+  right: auto;
+  left: calc(50% + 262px);
+  flex-direction: row-reverse;
+}
+.album.at-cover .hint-text { text-align: left; }
+/* на обложке уголок фото — «наугад», а не «листать»: свой текст */
+.hint-text--cover { display: none; }
+.album.at-cover .hint-text { display: none; }
+.album.at-cover .hint-text--cover { display: inline; }
+.album.at-cover .hint-arrow { transform: scaleX(-1); margin-top: -18px; }
+@keyframes album-hint-in { from { opacity: 0; transform: translateY(6px) rotate(-3deg); } to { opacity: 1; transform: rotate(-3deg); } }
+
+/* скринридеры слышат «Страница N из M» */
+.album-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* перелистывание: лист въезжает с лёгким поворотом */
+@keyframes album-in-next { from { opacity: 0; transform: translateX(40px) rotateY(-10deg); } to { opacity: 1; transform: none; } }
+@keyframes album-in-prev { from { opacity: 0; transform: translateX(-40px) rotateY(10deg); } to { opacity: 1; transform: none; } }
+.album-leaf.is-in-next { animation: album-in-next 0.38s var(--ease); transform-origin: left center; }
+.album-leaf.is-in-prev { animation: album-in-prev 0.38s var(--ease); transform-origin: right center; }
+@media (prefers-reduced-motion: reduce) {
+  .album-leaf.is-in-next, .album-leaf.is-in-prev, .album-hint { animation: none; }
+  .page-corner::before, .page-corner::after, .album-ribbon, .cover-photo-tab, a.album-cover-board { transition: none; }
+}
+
+/* узкий десктоп: записке у обложки не хватает места справа — под альбом */
+@media (max-width: 1100px) {
+  .album.at-cover .album-hint { top: auto; bottom: -64px; left: 50%; transform: translateX(-50%) rotate(-3deg); }
+  .album.at-cover .hint-arrow { display: none; }
+}
+
+/* телефон: одна страница — фото, марка приклеена к его углу, ниже текст */
+@media (max-width: 799px) {
+  .album { margin-top: 20px; }
+  .album-moment { grid-template-columns: 1fr; min-height: 0; background: var(--paper); }
+  .album.is-js .album-moment.is-current { display: block; }
+  .album-page { padding: 22px 18px; }
+  .album-page--left { padding-bottom: 0; }
+  .album-photo-wrap.prose figure.album-photo { padding: 8px; }
+  .album-photo-wrap.prose figure.album-photo img { max-height: 70vh; }
+  .album-page--right { padding-top: 64px; padding-bottom: 64px; }
+  .album-pageno { bottom: 22px; }
+  .stamp-wrap { position: absolute; top: -76px; right: 14px; margin: 0; }
+  .stamp { width: calc(var(--p) * 8); height: calc(var(--p) * 10); padding: 9px; gap: 3px; }
+  .stamp-denom { font-size: 11px; }
+  .album-title { font-size: 32px; }
+  .album-text { font-size: 17px; }
+  .album-cover-board { min-height: 440px; padding: 96px 24px 32px; }
+  .album-cover-title { font-size: 44px; }
+  .cover-photo-tab { right: -30px; width: 74px; height: 58px; }
+  .cover-photo-tab-label { left: auto; right: 0; top: calc(100% + 8px); transform: rotate(-4deg); }
+  .album-ribbon { left: 62%; }
+  .album-ribbon-label { left: calc(62% + 26px); }
+  .album-hint { right: auto; left: 12px; top: calc(100% + 16px); }
+  .album-hint .hint-text { text-align: left; }
+  .hint-arrow { display: none; }
+}

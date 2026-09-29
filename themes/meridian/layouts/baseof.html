@@ -27,6 +27,7 @@
 
   {{- $ogimg := printf "%simg/og-card.jpg" site.BaseURL -}}
   {{- with .Resources.GetMatch "cover.*" }}{{ $ogimg = (.Fill "1200x630 Center").Permalink }}{{ end -}}
+  {{- if and .IsSection (eq .Section "albom") }}{{ with last 1 (partialCached "album-moments.html" .) }}{{ with (index . 0).Resources.GetMatch "photo.*" }}{{ $ogimg = ((.Filter images.AutoOrient).Fill "1200x630 Center").Permalink }}{{ end }}{{ end }}{{ end -}}
   <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
   <meta property="og:title" content="{{ $title }}">
   <meta property="og:description" content="{{ $desc }}">

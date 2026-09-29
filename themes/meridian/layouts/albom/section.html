@@ -1,0 +1,106 @@
+{{- /* Фотоальбом /albom/: обложка + по развороту на момент.
+     Все листы в HTML сразу; album.js показывает один текущий и листает.
+     Без JS листы идут лентой друг под другом — ничего не теряется.
+     Момент = page bundle content/albom/<slug>/ с photo.* и stamp.png (опц.). */}}
+{{ define "head" }}
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap&subset=cyrillic,latin" rel="stylesheet">
+  {{- $js := resources.Get "js/album.js" | minify | fingerprint }}
+  <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
+{{ end }}
+
+{{ define "main" }}
+{{- $moments := partialCached "album-moments.html" . }}
+{{- $n := len $moments }}
+{{- $romans := slice "I" "II" "III" "IV" "V" "VI" "VII" "VIII" "IX" "X" "XI" "XII" }}
+{{- /* арт обложки (PNG с прозрачным фоном); нет файла — тканевая CSS-обложка */}}
+{{- $coverArt := os.FileExists "themes/meridian/static/img/books/album-cover.png" }}
+<article class="album at-cover" data-album>
+  <div class="album-book">
+
+    <section class="album-leaf album-cover is-current" data-slug="" aria-label="Обложка альбома">
+      <div class="album-cover-wrap">
+        {{- if $moments }}
+        {{- /* уголок старого фото торчит из-под обложки: потянуть — открыть наугад */}}
+        <button class="cover-photo-tab" type="button" data-go="random" aria-label="Открыть наугад">
+          <span class="cover-photo-tab-label" aria-hidden="true">вытащить наугад</span>
+        </button>
+        <a class="album-cover-board{{ if $coverArt }} has-art{{ end }}" href="#{{ (index $moments 0).File.ContentBaseName }}" data-go="next" aria-label="Открыть альбом">
+          <h1 class="album-cover-title">{{ .Title }}</h1>
+        </a>
+        {{- else }}
+        <div class="album-cover-board{{ if $coverArt }} has-art{{ end }}">
+          <h1 class="album-cover-title">{{ .Title }}</h1>
+        </div>
+        {{- end }}
+      </div>
+      <div class="album-cover-intro">
+        {{ .Content }}
+        {{- if not $moments }}<p>Альбом пока пуст — первые страницы скоро появятся.</p>{{ end }}
+      </div>
+    </section>
+
+    {{- range $i, $m := $moments }}
+    {{- $slug := .File.ContentBaseName }}
+    {{- $h := hash.FNV32a $slug }}
+    {{- $tilt := div (float (sub (mod $h 31) 15)) 10 }}
+    {{- $stampTilt := add 3 (mod (div $h 7) 4) }}
+    {{- if eq (mod $h 2) 0 }}{{ $stampTilt = mul $stampTilt -1 }}{{ end }}
+    {{- $sd := .Date }}{{ with .Params.stamp_date }}{{ $sd = time.AsTime . }}{{ end }}
+    {{- $denom := printf "%d·%s·%s" $sd.Day (index $romans (sub (int $sd.Month) 1)) ($sd.Format "06") }}
+    {{- $photo := (.Resources.GetMatch "photo.*").Filter images.AutoOrient }}
+    {{- /* перекодирование в jpg всегда: заодно вычищает EXIF (геометки, модель телефона) */}}
+    {{- if gt (math.Max $photo.Width $photo.Height) 1400 }}{{ $photo = $photo.Fit "1400x1400 jpg q85" }}{{ else }}{{ $photo = $photo.Process "jpg q85" }}{{ end }}
+    <section class="album-leaf album-moment" id="{{ $slug }}" data-slug="{{ $slug }}" aria-label="{{ .Title }}"
+      style="--tilt: {{ $tilt }}deg; --stamp-tilt: {{ $stampTilt }}deg">
+      <div class="album-page album-page--left">
+        <div class="prose album-photo-wrap">
+          <figure class="album-photo">
+            <span class="photo-corner photo-corner--tl" aria-hidden="true"></span>
+            <span class="photo-corner photo-corner--tr" aria-hidden="true"></span>
+            <span class="photo-corner photo-corner--bl" aria-hidden="true"></span>
+            <span class="photo-corner photo-corner--br" aria-hidden="true"></span>
+            <img src="{{ $photo.RelPermalink }}" width="{{ $photo.Width }}" height="{{ $photo.Height }}" alt="{{ .Title }}" loading="lazy">
+          </figure>
+        </div>
+      </div>
+      <div class="album-page album-page--right">
+        <div class="stamp-wrap">
+          <div class="stamp">
+            {{- with .Resources.GetMatch "stamp.*" }}
+            {{- $s := . }}{{ if gt .Width 600 }}{{ $s = .Resize "600x" }}{{ end }}
+            <img class="stamp-img" src="{{ $s.RelPermalink }}" width="{{ $s.Width }}" height="{{ $s.Height }}" alt="" loading="lazy">
+            {{- else }}
+            <span class="stamp-img stamp-img--empty" aria-hidden="true"></span>
+            {{- end }}
+            <span class="stamp-denom">{{ $denom }}</span>
+          </div>
+        </div>
+        <h2 class="album-title">{{ .Title }}</h2>
+        <time class="album-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ partial "date.html" .Date }}</time>
+        <div class="album-text">{{ .Content }}</div>
+        <span class="album-pageno" aria-hidden="true">— {{ add $i 1 }} —</span>
+      </div>
+      {{- /* листать за уголки: левый нижний — назад (с первой страницы — на обложку), правый нижний — вперёд */}}
+      <button class="page-corner page-corner--prev" type="button" data-go="prev" aria-label="Предыдущая страница"></button>
+      {{- if lt (add $i 1) $n }}
+      <button class="page-corner page-corner--next" type="button" data-go="next" aria-label="Следующая страница"></button>
+      {{- end }}
+    </section>
+    {{- end }}
+
+    {{- if $moments }}
+    {{- /* ленточка-закладка: открыть наугад (видна на разворотах, если моментов ≥ 2) */}}
+    <button class="album-ribbon" type="button" data-go="random" aria-label="Открыть наугад" hidden></button>
+    <span class="album-ribbon-label" aria-hidden="true">открыть наугад</span>
+    {{- /* подсказка при первом визите; album.js показывает и прячет */}}
+    <p class="album-hint" hidden>
+      <span class="hint-text hint-text--desk">листай стрелками ← →<br>или тяни за уголок</span>
+      <span class="hint-text hint-text--touch">листай свайпом<br>или тяни за уголок</span>
+      <span class="hint-text hint-text--cover">открой альбом<br>или вытащи фото наугад</span>
+      <svg class="hint-arrow" viewBox="0 0 60 40" aria-hidden="true"><path d="M4 30 C 20 36, 40 30, 52 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M44 10 L53 6 L54 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </p>
+    {{- end }}
+  </div>
+  <span class="album-sr" aria-live="polite"></span>
+</article>
+{{ end }}

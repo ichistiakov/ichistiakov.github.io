@@ -1,0 +1,12 @@
+{{- /* Моменты альбома, пригодные к показу: page bundle с photo.* внутри.
+     Вход: секция альбома. Выход: slice страниц, старые → новые.
+     Момент без фото пропускается с предупреждением при сборке. */}}
+{{- $out := slice }}
+{{- range .Pages.ByDate }}
+  {{- if .Resources.GetMatch "photo.*" }}
+    {{- $out = $out | append . }}
+  {{- else }}
+    {{- warnf "albom: у момента %q нет photo.* — пропущен" .File.Dir }}
+  {{- end }}
+{{- end }}
+{{- return $out }}
