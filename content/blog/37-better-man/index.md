@@ -80,6 +80,8 @@ summary: "Мне 37. В пятый раз посмотрел Better Man о Ро�
 
 ---
 
+![Frank Sinatra. My Way (1969)](img/sinatra-my-way.jpg "Frank Sinatra. My Way (1969)")
+
 А потом финал. Робби поёт My Way, и вот здесь меня добивает окончательно.
 
 > Regrets, I've had a few\
